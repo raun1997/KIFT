@@ -4,3 +4,5 @@
 - [ ] automake
 - [ ] libtool
 - [ ] swig
+- [ ] SphinxBase
+- [ ] Bison
