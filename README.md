@@ -1,5 +1,5 @@
 # KIFT
-[ ] autoconf
-[ ] gcc
-[ ] automake
-[ ] libtool
+autoconf [ ]
+gcc [ ] 
+automake [ ]
+libtool [ ]
