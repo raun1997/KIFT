@@ -3,3 +3,4 @@
 - [ ] gcc
 - [ ] automake
 - [ ] libtool
+- [ ] swig
