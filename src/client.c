@@ -13,10 +13,13 @@
 int main(int ac, char **av)
 {
   // INITIALIZE CLIENT
+  int sockfd, portno, n;
+  struct sockaddr_in serv_addr;
+  struct hostent *server;
   // QUERY SERVER
+  // c = connect(int socket, const struct sockaddr *address, socklen_t address_len)
   // loop
-    // c = connect()
-    // IF CONNECT TO SERVER
+    // IF c is > 0
       // while program is not terminated
         // wait for keyword
         // msg = record message();
