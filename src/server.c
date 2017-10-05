@@ -12,23 +12,22 @@
 
 #include "../include/kift.h"
 
-int   main(int ac, char **av)
+int   main(void)
 {
   // TODO INITIALIZE SERVER
   int sockfd;
-  struct sockaddr_in my_addr;
+  struct addrinfo k_addr, *servinfo, *p;
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0); // do some error checking!
-  my_addr.sin_family = AF_INET;         // host byte order
-  my_addr.sin_port = htons(PORT);     // short, network byte order
-  my_addr.sin_addr.s_addr = inet_addr(IP);
-  memset(&(my_addr.sin_zero), '\0', 8); // zero the rest of the struct
+  k_addr.ai_family = AF_INET;         // host byte order
+  //k_addr.sin_port = htons(PORT);     // short, network byte order
+  k_addr.ai_addr.s_addr = inet_addr(IP);
+  memset(&(k_addr.sin_zero), '\0', 8); // zero the rest of the struct
   // don't forget your error checking for bind():
-  bind(sockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr));
+  bind(sockfd, (struct sockaddr *)&k_addr, sizeof(struct sockaddr));
   while (1)
   {
-    // LISTEN ON SERVER FOR CONNECTIONS
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(NULL, PORT, &k_addr, &servinfo)) != 0) {
           fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
           return 1;
       }
@@ -64,5 +63,50 @@ int   main(int ac, char **av)
     printf("client: received '%s'\n",buf);
     close(sockfd);
   }
-  return 0;
+  freeaddrinfo(servinfo); // all done with this structure
+
+    if (p == NULL)  {
+        fprintf(stderr, "server: failed to bind\n");
+        exit(1);
+    }
+
+    if (listen(sockfd, BACKLOG) == -1) {
+        perror("listen");
+        exit(1);
+    }
+
+    sa.sa_handler = sigchld_handler; // reap all dead processes
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+        perror("sigaction");
+        exit(1);
+    }
+
+    printf("server: waiting for connections...\n");
+
+    while(1) {  // main accept() loop
+        sin_size = sizeof their_addr;
+        new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
+        if (new_fd == -1) {
+            perror("accept");
+            continue;
+        }
+
+        inet_ntop(their_addr.ss_family,
+            get_in_addr((struct sockaddr *)&their_addr),
+            s, sizeof s);
+        printf("server: got connection from %s\n", s);
+
+        if (!fork()) { // this is the child process
+            close(sockfd); // child doesn't need the listener
+            if (send(new_fd, "Hello, world!", 13, 0) == -1)
+                perror("send");
+            close(new_fd);
+            exit(0);
+        }
+        close(new_fd);  // parent doesn't need this
+    }
+
+    return 0;
 }
