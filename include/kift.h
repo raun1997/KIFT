@@ -32,5 +32,6 @@
 #define MAXDATASIZE 100
 
 int   example(char *str);
+const char * recognize_from_microphone();
 
 #endif

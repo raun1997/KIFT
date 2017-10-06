@@ -12,13 +12,15 @@
 
 #include "../include/kift.h"
 #include <pocketsphinx.h>
+#include <assert.h>
 
 #define S_RATE  (44100)
 #define BUF_SIZE (S_RATE*2)
 
+/*
 void sigchld_handler(int s)
 {
-    // waitpid() might overwrite errno, so we save and restore it:
+    waitpid() might overwrite errno, so we save and restore it:
     int saved_errno = errno;
     int this = s;
     this = 0;
@@ -26,7 +28,7 @@ void sigchld_handler(int s)
     while(waitpid(-1, NULL, WNOHANG) > 0);
 
     errno = saved_errno;
-}
+}*/
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -49,9 +51,9 @@ void write_little_endian(unsigned int word, int num_bytes, FILE *wav_file)
     }
 }
 
-void write_wav(char *filename, unsigned long num_samples, short int *data, int s_rate)
+void write_wav(char *filename, unsigned long num_samples, char *data, int s_rate)
 {
-    FILE* wav_file;
+    FILE *wav_file;
     unsigned int sample_rate;
     unsigned int num_channels;
     unsigned int bytes_per_sample;
@@ -77,7 +79,7 @@ void write_wav(char *filename, unsigned long num_samples, short int *data, int s
     write_little_endian(num_channels, 2, wav_file);
     write_little_endian(sample_rate, 4, wav_file);
     write_little_endian(byte_rate, 4, wav_file);
-    write_little_endian(num_channels*bytes_per_sample, 2, wav_file);  /* block align */
+    write_little_endian(num_channels * bytes_per_sample, 2, wav_file);  /* block align */
     write_little_endian(8*bytes_per_sample, 2, wav_file);  /* bits/sample */
 
     /* write data subchunk */
@@ -92,26 +94,26 @@ void write_wav(char *filename, unsigned long num_samples, short int *data, int s
 
 int   main(void)
 {
-  FILE* wav_file;
+//  FILE* wav_file;
   int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information
     socklen_t sin_size;
-    struct sigaction sa;
+//    struct sigaction sa;
     int yes=1;
     char s[INET6_ADDRSTRLEN];
     int rv;
-    ps_decoder_t *ps = NULL;
-    cmd_ln_t *config = NULL;
+//    ps_decoder_t *ps = NULL;
+//    cmd_ln_t *config = NULL;
     char buffer[MAXDATASIZE];
-    int i;
-    float t;
+//	float t;
+	int bytes;
 
-    config = cmd_ln_init(NULL, ps_args(), TRUE,
+/*    config = cmd_ln_init(NULL, ps_args(), TRUE,
 		         "-hmm", MODELDIR "/en-us/en-us",
 	                 "-lm", MODELDIR "/en-us/en-us.lm.bin",
 	                 "-dict", MODELDIR "/en-us/cmudict-en-us.dict",
-	                 NULL);
+	                 NULL);*/
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
@@ -150,21 +152,15 @@ int   main(void)
       fprintf(stderr, "server: failed to bind\n"), exit(1);
     if (listen(sockfd, BACKLOG) == -1)
       perror("listen"), exit(1);
-    sa.sa_handler = sigchld_handler;
+    /*sa.sa_handler = sigchld_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &sa, NULL) == -1)
     {
       perror("sigaction");
       exit(1);
-    }
+    }*/
     printf("server: waiting for connections...\n");
-    i = 0;
-    while (i < BUF_SIZE)
-    {
-      phase += freq_radians_per_sample;
-      buffer[i++] = (int)(amplitude * sin(phase));
-    }
     while (1)
     {
       sin_size = sizeof their_addr;
