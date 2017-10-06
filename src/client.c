@@ -11,8 +11,11 @@
 /* ************************************************************************** */
 
 #include "../include/kift.h"
+#include <stdio.h>
+#include <string.h>
 #include <pocketsphinx.h>
-
+#include <sphinxbase/ad.h>
+#include <sphinxbase/err.h>
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
