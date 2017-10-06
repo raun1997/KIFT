@@ -11,6 +11,10 @@
 /* ************************************************************************** */
 
 #include "../include/kift.h"
+#include <pocketsphinx.h>
+
+#define S_RATE  (44100)
+#define BUF_SIZE (S_RATE*2)
 
 void sigchld_handler(int s)
 {
@@ -24,7 +28,6 @@ void sigchld_handler(int s)
     errno = saved_errno;
 }
 
-
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -35,8 +38,61 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+void write_little_endian(unsigned int word, int num_bytes, FILE *wav_file)
+{
+    unsigned buf;
+    while(num_bytes>0)
+    {   buf = word & 0xff;
+        fwrite(&buf, 1,1, wav_file);
+        num_bytes--;
+    word >>= 8;
+    }
+}
+
+void write_wav(char *filename, unsigned long num_samples, short int *data, int s_rate)
+{
+    FILE* wav_file;
+    unsigned int sample_rate;
+    unsigned int num_channels;
+    unsigned int bytes_per_sample;
+    unsigned int byte_rate;
+    unsigned long i;    /* counter for samples */
+
+    num_channels = 1;   /* monoaural */
+    bytes_per_sample = 2;
+    if (s_rate<=0)
+      sample_rate = 44100;
+    else
+      sample_rate = (unsigned int)s_rate;
+    byte_rate = sample_rate * num_channels * bytes_per_sample;
+    wav_file = fopen(filename, "w");
+    assert(wav_file);   /* make sure it opened */
+    fwrite("RIFF", 1, 4, wav_file);
+    write_little_endian(36 + bytes_per_sample* num_samples*num_channels, 4, wav_file);
+    fwrite("WAVE", 1, 4, wav_file);
+    /* write fmt  subchunk */
+    fwrite("fmt ", 1, 4, wav_file);
+    write_little_endian(16, 4, wav_file);   /* SubChunk1Size is 16 */
+    write_little_endian(1, 2, wav_file);    /* PCM is format 1 */
+    write_little_endian(num_channels, 2, wav_file);
+    write_little_endian(sample_rate, 4, wav_file);
+    write_little_endian(byte_rate, 4, wav_file);
+    write_little_endian(num_channels*bytes_per_sample, 2, wav_file);  /* block align */
+    write_little_endian(8*bytes_per_sample, 2, wav_file);  /* bits/sample */
+
+    /* write data subchunk */
+    fwrite("data", 1, 4, wav_file);
+    write_little_endian(bytes_per_sample* num_samples*num_channels, 4, wav_file);
+    i = -1;
+    while (++i < num_samples)
+      write_little_endian((unsigned int)(data[i]),bytes_per_sample, wav_file);
+    printf("server: file create successfully");
+    fclose(wav_file);
+}
+
 int   main(void)
 {
+  FILE* wav_file;
   int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information
@@ -45,6 +101,17 @@ int   main(void)
     int yes=1;
     char s[INET6_ADDRSTRLEN];
     int rv;
+    ps_decoder_t *ps = NULL;
+    cmd_ln_t *config = NULL;
+    char buffer[MAXDATASIZE];
+    int i;
+    float t;
+
+    config = cmd_ln_init(NULL, ps_args(), TRUE,
+		         "-hmm", MODELDIR "/en-us/en-us",
+	                 "-lm", MODELDIR "/en-us/en-us.lm.bin",
+	                 "-dict", MODELDIR "/en-us/cmudict-en-us.dict",
+	                 NULL);
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
@@ -80,15 +147,9 @@ int   main(void)
     }
     freeaddrinfo(servinfo);
     if (p == NULL)
-    {
-      fprintf(stderr, "server: failed to bind\n");
-      exit(1);
-    }
+      fprintf(stderr, "server: failed to bind\n"), exit(1);
     if (listen(sockfd, BACKLOG) == -1)
-    {
-      perror("listen");
-      exit(1);
-    }
+      perror("listen"), exit(1);
     sa.sa_handler = sigchld_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
@@ -98,6 +159,12 @@ int   main(void)
       exit(1);
     }
     printf("server: waiting for connections...\n");
+    i = 0;
+    while (i < BUF_SIZE)
+    {
+      phase += freq_radians_per_sample;
+      buffer[i++] = (int)(amplitude * sin(phase));
+    }
     while (1)
     {
       sin_size = sizeof their_addr;
@@ -113,14 +180,15 @@ int   main(void)
       printf("server: got connection from %s\n", s);
       if (!fork())
       {
-        close(sockfd); // child doesn't need the listener
-        if (send(new_fd, "Hello, world!", 13, 0) == -1)
-          perror("send");
+        close(sockfd);
+        if ((bytes = recv(new_fd, &buffer, MAXDATASIZE - 1, 0)) == -1)
+          perror("client: send");
+        else
+          write_wav("input.wav", BUF_SIZE, buffer, S_RATE);
         close(new_fd);
         exit(0);
       }
-        close(new_fd);  // parent doesn't need this
+      close(new_fd);
     }
-
     return 0;
 }
