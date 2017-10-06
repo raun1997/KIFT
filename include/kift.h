@@ -18,13 +18,18 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <netdb.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/wait.h>
+#include <signal.h>
 
+# define BACKLOG 16
 # define PORT "4242"
 # define IP "10.1123.3.18"
+#define MAXDATASIZE 100
 
 int   example(char *str);
 
