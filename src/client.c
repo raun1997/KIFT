@@ -31,10 +31,8 @@ char const *decoded_speech;
 
 void *get_in_addr(struct sockaddr *sa)
 {
-    if (sa->sa_family == AF_INET) {
+    if (sa->sa_family == AF_INET)
         return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
-
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
@@ -43,6 +41,7 @@ const char *recognize_from_microphone()
 	ad_start_rec(ad);                                // start recording
 	ps_start_utt(ps);                                // mark the start of the utterance
 	utt_started = FALSE;                             // clear the utt_started flag
+  char const *hyp;
 
 	while (1)
 	{
@@ -87,24 +86,24 @@ char *record()
 		printf("You Said: %s\n", decoded_speech);                               // send decoded speech to screen
 		return ((char*)decoded_speech);
 		break;
-   	}
+  }
 	exit(0);
 }
 
 int main(int argc, char *argv[])
 {
-  	int	sockfd, numbytes;
-	char	*output;
-  	struct 	addrinfo hints, *servinfo, *p;
-  	int 	rv;
-  	char 	s[INET6_ADDRSTRLEN];
+  int	sockfd, numbytes;
+  char	*output;
+  struct 	addrinfo hints, *servinfo, *p;
+  int 	rv;
+  char 	s[INET6_ADDRSTRLEN];
 
 	if (argc > 2)
 	{
 		memset(&hints, 0, sizeof hints);
-    		hints.ai_family = AF_UNSPEC;
-   		hints.ai_socktype = SOCK_STREAM;
-    		if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0)
+    hints.ai_family = AF_UNSPEC;
+   	hints.ai_socktype = SOCK_STREAM;
+    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0)
 		{
         		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         		return 1;
@@ -128,16 +127,16 @@ int main(int argc, char *argv[])
         		break;
     		}
     		if (p == NULL)
-		{
+        {
         		fprintf(stderr, "client: failed to connect\n");
-        		return 2;
+        		return (2);
     		}
     		inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
     		printf("client: connecting to %s\n", s);
     		freeaddrinfo(servinfo);
     		while (1)
     		{
-			output = (char*)calloc(MAXDATASIZE,sizeof(char));
+			       output = (char*)calloc(MAXDATASIZE,sizeof(char));
       			output = record();
       			if ((numbytes = send(sockfd, output, MAXDATASIZE - 1, 0)) == -1)
       			{
