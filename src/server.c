@@ -92,7 +92,7 @@ void write_wav(char *filename, unsigned long num_samples, char *data, int s_rate
     fclose(wav_file);
 }
 
-int   main(void)
+int   main(int argc, char **argv)
 {
 //  FILE* wav_file;
   int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
@@ -114,13 +114,14 @@ int   main(void)
 	                 "-lm", MODELDIR "/en-us/en-us.lm.bin",
 	                 "-dict", MODELDIR "/en-us/cmudict-en-us.dict",
 	                 NULL);*/
-
+  if (argc == 1)
+  {
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
 
-    if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(av[1], PORT, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
@@ -186,5 +187,8 @@ int   main(void)
       }
       close(new_fd);
     }
-    return 0;
+  }
+  else
+    perror("usage: ./server <host.ip.address> || ");
+  return 0;
 }
