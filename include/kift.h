@@ -28,10 +28,10 @@
 
 # define BACKLOG 16
 # define PORT "4242"
-# define IP "10.1123.3.18"
+//# define IP "10.113.3.18"
 #define MAXDATASIZE 100
 
 int   example(char *str);
-const char * recognize_from_microphone();
+const char *recognize_from_microphone();
 
 #endif
