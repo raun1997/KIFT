@@ -30,12 +30,7 @@ uint8 utt_started, in_speech;      // flags for tracking active speech - has spe
 int32 k;                           // holds the number of frames in the audio buffer
 //char const *decoded_speech;
 
-config = cmd_ln_init(NULL, ps_args(), TRUE,                   // Load the configuration structure - ps_args() passes the default values
-"-hmm", "/usr/local/share/pocketsphinx/model/en-us/en-us",  // path to the standard english language model
-"-lm", "custom.lm",                                         // custom language model (file must be present)
-"-dict", "custom.dic",                                      // custom dictionary (file must be present)
-"-logfn", "/dev/null",                                      // suppress log info from being sent to screen
- NULL);
+
 
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -44,6 +39,7 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+/*
 const char *recognize_from_microphone()
 {
 	ad_start_rec(ad);                                // start recording
@@ -54,8 +50,8 @@ const char *recognize_from_microphone()
 	while (1)
 	{
     k = ad_read(ad, adbuf, 4096);                // capture the number of frames in the audio buffer
-    ps_process_raw(ps, adbuf, k, FALSE, FALSE);  // send the audio buffer to the pocketsphinx decoder
-    in_speech = ps_get_in_speech(ps);            // test to see if speech is being detected
+    //ps_process_raw(ps, adbuf, k, FALSE, FALSE);  // send the audio buffer to the pocketsphinx decoder
+    //in_speech = ps_get_in_speech(ps);            // test to see if speech is being detected
     if (in_speech && !utt_started)
       utt_started = TRUE;                      // then set the flag
     if (!in_speech && utt_started)
@@ -80,7 +76,12 @@ char *record()
 //	char const *hyp;                   // pointer to "hypothesis" (best guess at the decoded result)
 	const char *decoded_speech;
 
-
+  config = cmd_ln_init(NULL, ps_args(), TRUE,                   // Load the configuration structure - ps_args() passes the default values
+  "-hmm", "/usr/local/share/pocketsphinx/model/en-us/en-us",  // path to the standard english language model
+  "-lm", "custom.lm",                                         // custom language model (file must be present)
+  "-dict", "custom.dic",                                      // custom dictionary (file must be present)
+  "-logfn", "/dev/null",                                      // suppress log info from being sent to screen
+   NULL);
 	ps = ps_init(config);                                                        // initialize the pocketsphinx decoder
 	ad = ad_open_dev("sysdefault", (int)cmd_ln_float32_r(config, "-samprate")); // open default microphone at default samplerate
 	while (1)
@@ -92,6 +93,7 @@ char *record()
   }
 	exit(0);
 }
+*/
 
 int main(int argc, char **argv)
 {
@@ -101,7 +103,7 @@ int main(int argc, char **argv)
   int 	rv;
   char 	s[INET6_ADDRSTRLEN];
 
-	if (argc == 1)
+	if (argc == 2)
 	{
 		memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
