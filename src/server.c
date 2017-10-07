@@ -14,8 +14,8 @@
 #include <pocketsphinx.h>
 #include <assert.h>
 
-#define S_RATE  (44100)
-#define BUF_SIZE (S_RATE*2)
+#define S_RATE (44100)
+#define BUF_SIZE (S_RATE * 2)
 
 /*
 void sigchld_handler(int s)
@@ -29,6 +29,53 @@ void sigchld_handler(int s)
 
     errno = saved_errno;
 }*/
+
+void  process(char *file)
+{
+  ps_decoder_t *ps;
+  cmd_ln_t *config;
+  FILE *fh;
+  char const *hyp, *uttid;
+  int16 buf[512];
+  int rv;
+  int32 score;
+
+  config = cmd_ln_init(NULL, ps_args(), TRUE,
+		         "-hmm", MODELDIR "/en-us/en-us",
+		         "-lm", MODELDIR "/en-us/en-us.lm.bin",
+             "-dict", MODELDIR "/en-us/cmudict-en-us.dict",
+		         NULL);
+  if (config == NULL)
+  {
+    fprintf(stderr, "Failed to create config object, see log for details\n");
+	  return -1;
+  }
+  ps = ps_init(config);
+  if (ps == NULL)
+  {
+	  fprintf(stderr, "Failed to create recognizer, see log for details\n");
+	  return -1;
+  }
+  fh = fopen(file, "rb");
+  if (fh == NULL)
+  {
+	  fprintf(stderr, "Unable to open input file goforward.raw\n");
+	  return -1;
+  }
+  rv = ps_start_utt(ps);
+  while (!feof(fh))
+  {
+    size_t nsamp;
+	  nsamp = fread(buf, 2, 512, fh);
+	  rv = ps_process_raw(ps, buf, nsamp, FALSE, FALSE);
+  }
+  rv = ps_end_utt(ps);
+  hyp = ps_get_hyp(ps, &score);
+  printf("Recognized: %s\n", hyp);
+  fclose(fh);
+  ps_free(ps);
+  cmd_ln_free_r(config);
+}
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -179,13 +226,14 @@ int   main(int argc, char **argv)
       {
         close(sockfd);
         if ((bytes = recv(new_fd, &buffer, MAXDATASIZE - 1, 0)) == -1)
-          perror("client: send");
+          perror("client: recieved");
         else
           write_wav("input.wav", BUF_SIZE, buffer, S_RATE);
         close(new_fd);
         exit(0);
       }
       close(new_fd);
+      process("input.wav");
     }
   }
   else

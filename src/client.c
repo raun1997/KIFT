@@ -6,7 +6,7 @@
 /*   By: scollet <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/10/04 16:25:11 by scollet           #+#    #+#             */
-/*   Updated: 2017/10/04 16:25:13 by scollet          ###   ########.fr       */
+/*   Updated: 2017/10/07 14:04:41 by scollet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,12 @@ char *record()
 }
 */
 
+int 	record(void)
+{
+	system("electron ../.");
+	return (1);
+}
+
 int main(int argc, char **argv)
 {
   int	sockfd, numbytes;
@@ -141,17 +147,19 @@ int main(int argc, char **argv)
     freeaddrinfo(servinfo);
     while (1)
     {
-			      output = (char*)calloc(MAXDATASIZE,sizeof(char));
-            output = record();
-      			if ((numbytes = send(sockfd, output, MAXDATASIZE - 1, 0)) == -1)
-      			{
-       	 			perror("send");
-       	 			exit(1);
-      			}
-      			output[numbytes] = '\0';
-      			printf("client: sent file successfully\n");
-      			close(sockfd);
-    		}
+//			      output = (char*)calloc(MAXDATASIZE,sizeof(char));
+//            output = record();
+      if (record() <= 0)
+        perror("record: unknown error\n");
+      if ((numbytes = send(sockfd, "test.wav", MAXDATASIZE - 1, 0)) == -1)
+      {
+        perror("send");
+       	exit(1);
+      }
+      			//output[numbytes] = '\0';
+      printf("client: sent file successfully\n");
+      close(sockfd);
+    }
 	}
 	else
     perror("usage: ./client <host.ip.address> || ");
