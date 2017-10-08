@@ -40,6 +40,8 @@ void  process(char *file)
   int rv;
   int32 score;
 
+  /* See? Nothing actually happens here */
+
   config = cmd_ln_init(NULL, ps_args(), TRUE,
 		         "-hmm", MODELDIR "/en-us/en-us",
 		         "-lm", MODELDIR "/en-us/en-us.lm.bin",
@@ -77,25 +79,24 @@ void  process(char *file)
   cmd_ln_free_r(config);
 }
 
-// get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
-
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+  if (sa->sa_family == AF_INET)
+    return &(((struct sockaddr_in*)sa)->sin_addr);
+  return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
 void write_little_endian(unsigned int word, int num_bytes, FILE *wav_file)
 {
-    unsigned buf;
-    while(num_bytes>0)
-    {   buf = word & 0xff;
-        fwrite(&buf, 1,1, wav_file);
-        num_bytes--;
+  unsigned buf;
+
+  while(num_bytes>0)
+  {
+    buf = word & 0xff;
+    fwrite(&buf, 1,1, wav_file);
+    num_bytes--;
     word >>= 8;
-    }
+  }
 }
 
 void write_wav(char *filename, unsigned long num_samples, char *data, int s_rate)
@@ -106,6 +107,11 @@ void write_wav(char *filename, unsigned long num_samples, char *data, int s_rate
     unsigned int bytes_per_sample;
     unsigned int byte_rate;
     unsigned long i;    /* counter for samples */
+
+    /*
+    This function doesn't write the input audio stream to
+    file but it's most likely not a problem with the function.
+    */
 
     num_channels = 1;   /* monoaural */
     bytes_per_sample = 2;
@@ -141,36 +147,29 @@ void write_wav(char *filename, unsigned long num_samples, char *data, int s_rate
 
 int   main(int argc, char **argv)
 {
-//  FILE* wav_file;
   int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
-    struct addrinfo hints, *servinfo, *p;
-    struct sockaddr_storage their_addr; // connector's address information
-    socklen_t sin_size;
-//    struct sigaction sa;
-    int yes=1;
-    char s[INET6_ADDRSTRLEN];
-    int rv;
-//    ps_decoder_t *ps = NULL;
-//    cmd_ln_t *config = NULL;
-    char buffer[MAXDATASIZE];
-//	float t;
+  struct addrinfo hints, *servinfo, *p;
+  struct sockaddr_storage their_addr; // connector's address information
+  socklen_t sin_size;
+  int yes=1;
+  char s[INET6_ADDRSTRLEN];
+  int rv;
+  char buffer[MAXDATASIZE];
 	int bytes;
 
-/*    config = cmd_ln_init(NULL, ps_args(), TRUE,
-		         "-hmm", MODELDIR "/en-us/en-us",
-	                 "-lm", MODELDIR "/en-us/en-us.lm.bin",
-	                 "-dict", MODELDIR "/en-us/cmudict-en-us.dict",
-	                 NULL);*/
   if (argc == 1)
   {
+
+    /* TODO : drop this shit into a function */
+
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
-
-    if ((rv = getaddrinfo(av[1], PORT, &hints, &servinfo)) != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-        return 1;
+    if ((rv = getaddrinfo(av[1], PORT, &hints, &servinfo)) != 0)
+    {
+      fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+      return 1;
     }
     p = servinfo;
     while (p != NULL)
@@ -200,17 +199,12 @@ int   main(int argc, char **argv)
       fprintf(stderr, "server: failed to bind\n"), exit(1);
     if (listen(sockfd, BACKLOG) == -1)
       perror("listen"), exit(1);
-    /*sa.sa_handler = sigchld_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
-    if (sigaction(SIGCHLD, &sa, NULL) == -1)
-    {
-      perror("sigaction");
-      exit(1);
-    }*/
     printf("server: waiting for connections...\n");
     while (1)
     {
+
+      /* Internal loop while processing connections */
+
       sin_size = sizeof their_addr;
       new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
       if (new_fd == -1)
@@ -225,14 +219,20 @@ int   main(int argc, char **argv)
       if (!fork())
       {
         close(sockfd);
+
+        /* I'm not sure this is the way to go */
+
         if ((bytes = recv(new_fd, &buffer, MAXDATASIZE - 1, 0)) == -1)
-          perror("client: recieved");
+          perror("client: recieve");
         else
-          write_wav("input.wav", BUF_SIZE, buffer, S_RATE);
+          write_wav("input.wav", BUF_SIZE, buffer, S_RATE); /* NOTE : specifically this */
         close(new_fd);
         exit(0);
       }
       close(new_fd);
+
+      /* Process doesn't actually do anything. Watch, I can prove it to you */
+
       process("input.wav");
     }
   }

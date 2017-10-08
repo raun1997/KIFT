@@ -10,6 +10,8 @@
 #                                                                              #
 # **************************************************************************** #
 
+# this is literally ripped from my fdf, i just gotta rewrite it
+
 NAME = $(client/server)
 PATH_SRC = ./
 FT = 	../pocketsphinx/include \
