@@ -16,4 +16,4 @@ Use this IP as a command-line argument when you launch the client, otherwise it 
 ```
 ./client <local.ip.address>
 ```
-Once connected, the program currently just records whatever is happening. It might record infinitely. When you kill the process it will output to a valid .wav file. I'm working on sending that file in tact.
+Once connected, the program currently just records whatever is happening. It might record infinitely. When you kill the process it will output to a valid .wav file. I'm working on sending that file intact.
