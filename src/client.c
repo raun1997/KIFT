@@ -100,7 +100,6 @@ int main(int argc, char **argv)
 
       /* Internal loop while recording user */
       /* TODO : activate recording function on some input instead of attempting to record continuously */
-
       if (record() <= 0)
         perror("record: unknown error\n");
       if ((numbytes = send(sockfd, "1.wav", MAXDATASIZE - 1, 0)) == -1)

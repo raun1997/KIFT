@@ -40,7 +40,7 @@ void  process(char *file)
   int rv;
   int32 score;
 
-  /* See? Nothing actually happens here */
+  /* See? It don't do shit */
 
   config = cmd_ln_init(NULL, ps_args(), TRUE,
 		         "-hmm", MODELDIR "/en-us/en-us",

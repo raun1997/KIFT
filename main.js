@@ -15,7 +15,7 @@
 var record = require('node-record-lpcm16')
 var fs = require('fs')
 
-var file = fs.createWriteStream('test.wav', { encoding: 'binary' })
+var file = fs.createWriteStream('1.wav', { encoding: 'binary' })
 
 record.start({
 	  sampleRate : 44100,
