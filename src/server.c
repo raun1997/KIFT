@@ -225,7 +225,7 @@ int   main(int argc, char **argv)
         if ((bytes = recv(new_fd, &buffer, MAXDATASIZE - 1, 0)) == -1)
           perror("client: recieve");
         else
-          write_wav("input.wav", BUF_SIZE, buffer, S_RATE); /* NOTE : specifically this */
+          write_wav("1.wav", BUF_SIZE, buffer, S_RATE); /* NOTE : specifically this */
         close(new_fd);
         exit(0);
       }

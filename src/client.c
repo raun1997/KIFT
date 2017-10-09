@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 
       if (record() <= 0)
         perror("record: unknown error\n");
-      if ((numbytes = send(sockfd, "test.wav", MAXDATASIZE - 1, 0)) == -1)
+      if ((numbytes = send(sockfd, "1.wav", MAXDATASIZE - 1, 0)) == -1)
       {
         perror("send");
        	exit(1);
