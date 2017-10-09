@@ -17,6 +17,8 @@
 #define S_RATE (44100)
 #define BUF_SIZE (S_RATE * 2)
 
+#define IP "10.113.2.13"
+
 /*
 void sigchld_handler(int s)
 {
@@ -30,7 +32,7 @@ void sigchld_handler(int s)
     errno = saved_errno;
 }*/
 
-void  process(char *file)
+int  process(char *file)
 {
   ps_decoder_t *ps;
   cmd_ln_t *config;
@@ -40,7 +42,7 @@ void  process(char *file)
   int rv;
   int32 score;
 
-  /* See? It don't do shit */
+  /* See? It don't do anything */
 
   config = cmd_ln_init(NULL, ps_args(), TRUE,
 		         "-hmm", MODELDIR "/en-us/en-us",
@@ -50,19 +52,19 @@ void  process(char *file)
   if (config == NULL)
   {
     fprintf(stderr, "Failed to create config object, see log for details\n");
-	  return -1;
+	  return (-1);
   }
   ps = ps_init(config);
   if (ps == NULL)
   {
 	  fprintf(stderr, "Failed to create recognizer, see log for details\n");
-	  return -1;
+	  return (-1);
   }
   fh = fopen(file, "rb");
   if (fh == NULL)
   {
-	  fprintf(stderr, "Unable to open input file goforward.raw\n");
-	  return -1;
+	  fprintf(stderr, "Unable to open input file.raw\n");
+	  return (-1);
   }
   rv = ps_start_utt(ps);
   while (!feof(fh))
@@ -77,6 +79,7 @@ void  process(char *file)
   fclose(fh);
   ps_free(ps);
   cmd_ln_free_r(config);
+  return (0);
 }
 
 void *get_in_addr(struct sockaddr *sa)
@@ -166,7 +169,7 @@ int   main(int argc, char **argv)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
-    if ((rv = getaddrinfo(av[1], PORT, &hints, &servinfo)) != 0)
+    if ((rv = getaddrinfo(IP, PORT, &hints, &servinfo)) != 0)
     {
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
       return 1;
@@ -225,11 +228,10 @@ int   main(int argc, char **argv)
         if ((bytes = recv(new_fd, &buffer, MAXDATASIZE - 1, 0)) == -1)
           perror("client: recieve");
         else
-          write_wav("1.wav", BUF_SIZE, buffer, S_RATE); /* NOTE : specifically this */
+          write_wav("input.wav", BUF_SIZE, buffer, S_RATE); /* NOTE : specifically this */
         close(new_fd);
-        exit(0);
+//        exit(0);
       }
-      close(new_fd);
 
       /* Process doesn't actually do anything. Watch, I can prove it to you */
 
