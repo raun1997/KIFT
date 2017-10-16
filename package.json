@@ -1,5 +1,11 @@
 {
-	  "name"    : "electron-hello-world",
-	    "version" : "0.1.0",
-		  "main"    : "main.js"
+	"name": "KIFT",
+	"version": "0.1.0",
+	"main": "./src/app/main.js",
+	"devDependencies": {
+		"electron": "^1.7.9"
+	},
+	"dependencies": {
+		"node-record-lpcm16": "^0.3.0"
+	}
 }
