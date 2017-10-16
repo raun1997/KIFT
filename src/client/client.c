@@ -10,12 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/kift.h"
-#include <pocketsphinx.h>
-#include <sphinxbase/ad.h>
-#include <sphinxbase/err.h>
-
-# define NAME "SELF-AWARE-BATTLE-ROBOT"
+#include "kift.h"
 
 /* TODO : initialize this shit */
 
@@ -39,7 +34,7 @@ int 	record(void)
 
   /* TODO : make this more robust than a system call */
 
-  system("electron ../.");
+  system("electron ./.");
 	return (1);
 }
 
@@ -50,10 +45,11 @@ int main(int argc, char **argv)
   struct 	addrinfo hints, *servinfo, *p;
   int 	rv;
   char 	s[INET6_ADDRSTRLEN];
+  char	*ip;
 
   /* Client takes IP address of machine as an argument */
 
-	if (argc == 2)
+	if (argc == 1)
 	{
 
     /* TODO : drop this shit into a function */
@@ -61,7 +57,8 @@ int main(int argc, char **argv)
 		memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
    	hints.ai_socktype = SOCK_STREAM;
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0)
+	ip = get_ip_str();
+    if ((rv = getaddrinfo(ip, PORT, &hints, &servinfo)) != 0)
 		{
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
       return 1;
@@ -102,7 +99,7 @@ int main(int argc, char **argv)
       /* TODO : activate recording function on some input instead of attempting to record continuously */
       if (record() <= 0)
         perror("record: unknown error\n");
-      if ((numbytes = send(sockfd, "1.wav", MAXDATASIZE - 1, 0)) == -1)
+      if ((numbytes = send(sockfd, "./audio/1.wav", MAXDATASIZE - 1, 0)) == -1)
       {
         perror("send");
        	exit(1);

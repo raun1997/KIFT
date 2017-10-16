@@ -10,14 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/kift.h"
-#include <pocketsphinx.h>
-#include <assert.h>
-
-#define S_RATE (44100)
-#define BUF_SIZE (S_RATE * 2)
-
-#define IP "10.113.2.13"
+#include "kift.h"
 
 /*
 void sigchld_handler(int s)
@@ -159,6 +152,7 @@ int   main(int argc, char **argv)
   int rv;
   char buffer[MAXDATASIZE];
 	int bytes;
+	char	*ip;
 
   if (argc == 1)
   {
@@ -169,7 +163,8 @@ int   main(int argc, char **argv)
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // use my IP
-    if ((rv = getaddrinfo(IP, PORT, &hints, &servinfo)) != 0)
+	ip = get_ip_str();
+    if ((rv = getaddrinfo(ip, PORT, &hints, &servinfo)) != 0)
     {
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
       return 1;

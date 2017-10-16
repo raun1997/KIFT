@@ -15,11 +15,8 @@
  * @brief Records a FLAC audio file
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <portaudio.h>
 //#include <sndfile.h>
-#include "../include/audio.h"
+#include "kift.h"
 
 /**
  * @fn initAudioData

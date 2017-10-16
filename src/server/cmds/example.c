@@ -14,8 +14,9 @@
 
 int   example(char* str)
 {
-  if !(strcmp(str, "example"))
+  if (!strcmp(str, "example"))
   {
-    system("open http://google.com")
+    system("open http://google.com");
   }
+  return (0);
 }

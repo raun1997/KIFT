@@ -20,18 +20,32 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <net/if.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <assert.h>
+#include <pocketsphinx.h>
+#include <sphinxbase/ad.h>
+#include <sphinxbase/err.h>
+//#include "portaudio.h"
+// Leaving portaudio out until we have a use for it, build intructions
+// depend on use case.
+#include "audio.h"
 
 # define BACKLOG 16
 # define PORT "4242"
-//# define IP "10.113.3.18"
-#define MAXDATASIZE 100
+# define NAME "SELF-AWARE-BATTLE-ROBOT"
+# define IP "10.112.6.9"
+# define MAXDATASIZE 100
+# define S_RATE (44100)
+# define BUF_SIZE (S_RATE * 2)
 
 int   example(char *str);
+char	*get_ip_str(void);
 const char *recognize_from_microphone();
 
 #endif
