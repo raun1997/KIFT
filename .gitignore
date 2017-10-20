@@ -2,3 +2,4 @@ libft/*.o
 libft/*.a
 obj
 node_modules
+._*
