@@ -19,7 +19,7 @@ cmd_ln_t *config;                  // create configuration structure
 ad_rec_t *ad;                      // create audio recording structure - for use with ALSA functions
 
 int16 adbuf[4096];                 // buffer array to hold audio data
-uint8 utt_started, in_speech;      // flags for tracking active speech - has speech started? - is speech currently happening?
+uint8 utt_started, an_speech;      // flags for tracking active speech - has speech started? - is speech currently happening?
 int32 k;                           // holds the number of frames in the audio buffer
 
 void *get_in_addr(struct sockaddr *sa)
@@ -34,8 +34,7 @@ int 	record(void)
 
   /* TODO : make this more robust than a system call */
 
-  system("electron ./.");
-	return (1);
+  return (system("electron ./."));
 }
 
 int main(int argc, char **argv)
@@ -57,7 +56,7 @@ int main(int argc, char **argv)
 		memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
    	hints.ai_socktype = SOCK_STREAM;
-	ip = get_ip_str();
+  	ip = get_ip_str();
     if ((rv = getaddrinfo(ip, PORT, &hints, &servinfo)) != 0)
 		{
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
@@ -97,9 +96,10 @@ int main(int argc, char **argv)
 
       /* Internal loop while recording user */
       /* TODO : activate recording function on some input instead of attempting to record continuously */
+
       if (record() <= 0)
-        perror("record: unknown error\n");
-      if ((numbytes = send(sockfd, "./audio/1.wav", MAXDATASIZE - 1, 0)) == -1)
+        perror("record: \n");
+      if ((numbytes = send(sockfd, "./src/client/audio/test4.wav", MAXDATASIZE - 1, 0)) == -1)
       {
         perror("send");
        	exit(1);

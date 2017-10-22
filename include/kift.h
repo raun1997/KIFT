@@ -36,6 +36,7 @@
 // depend on use case.
 #include "audio.h"
 
+# define AUDIO_PATH "src/client/audio/"
 # define BACKLOG 16
 # define PORT "4242"
 # define NAME "SELF-AWARE-BATTLE-ROBOT"
