@@ -43,7 +43,7 @@
 # define IP "10.112.6.9"
 # define MAXDATASIZE 100
 # define S_RATE (44100)
-# define BUF_SIZE (S_RATE * 2)
+# define BUF_SIZE 512
 
 int   example(char *str);
 char	*get_ip_str(void);

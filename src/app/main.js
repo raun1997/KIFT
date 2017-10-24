@@ -11,6 +11,7 @@
 // ************************************************************************** //
 
 /* This just works */
+/* EDIT : this may be a little broken */
 
 var record = require('node-record-lpcm16')
 var fs = require('fs')
@@ -20,5 +21,10 @@ var file = fs.createWriteStream('./src/client/audio/test4.wav', { encoding: 'bin
 record.start({
   sampleRate: 44100,
   verbose: true
-})
-.pipe(file)
+}).pipe(file)
+
+// Stop recording after three seconds
+setTimeout(function () {
+  record.stop()
+  process.exit()
+}, 10000)

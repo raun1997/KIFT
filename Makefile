@@ -16,6 +16,7 @@ CFLAGS = -Wall -Werror -Wextra -g
 MODELDIR = $(shell pkg-config --variable=modeldir pocketsphinx)
 SPHX_FLAGS = $(shell pkg-config --cflags pocketsphinx sphinxbase)
 SPHX_LIBS = $(shell pkg-config --libs pocketsphinx sphinxbase)
+SDL_LIBS = $(shell sdl2-config --cflags --libs)
 # SV - Server specific files
 # CL - Client specific files
 # HL - Files containing helper functions used in both client and server
@@ -53,7 +54,7 @@ OBJ_HL = $(addprefix $(OBJ_HL_DIR), $(OBJ_HL_FILES))
 OBJ_CM = $(addprefix $(OBJ_SV_DIR), $(OBJ_CM_FILES))
 LIBFT = $(addprefix $(LIBFT_DIR), libft.a)
 
-LINK = -L $(LIBFT_DIR) -lft $(SPHX_LIBS)
+LINK = -L $(LIBFT_DIR) -lft $(SPHX_LIBS) $(SDL_LIBS)
 
 all: obj $(LIBFT) $(NAME_CL) $(NAME_SV)
 
@@ -81,7 +82,7 @@ $(LIBFT):
 
 $(NAME_CL): $(OBJ_CL) $(OBJ_HL)
 	@echo "\033[32mCompiling $(NAME_CL)...\033[0m"
-	@gcc $(OBJ_HL) $(OBJ_CL) $(LINK) -lm -o $(NAME_CL)
+	@gcc $(OBJ_HL) $(OBJ_CL) $(LINK) $(SDL_LIBS) -lm -o $(NAME_CL)
 	@echo "\033[1;4;32m[\xE2\x9C\x94] $(NAME_CL) Created.\033[0m\n"
 
 $(NAME_SV): $(OBJ_SV) $(OBJ_HL) $(OBJ_CM)
