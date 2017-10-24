@@ -28,10 +28,7 @@ char *rm_nline(char *str)
 	while (str[i])
 	{
 		if (str[i] == '\n')
-		{
 			str[i] = '\0';
-			printf("newline removed\n");
-		}
 		i++;
 	}
 	return (str);
@@ -43,7 +40,7 @@ void web_search(char *terms)
 	int i;
 
 	search = "open https://www.duckduckgo.com/?q=";
-	url = (char *)malloc(strlen(search) + strlen(terms) + 1);
+	url = (char *)malloc(strlen(search) + strlen(terms) + 1); //replace strlen with libft function
 	i = 0;
 	while(terms[i])
 	{
@@ -51,11 +48,11 @@ void web_search(char *terms)
 			terms[i] = '+';
 		i++;
 	}
-	// change to libft functions
-	strcpy(url, search);
-	strcat(url, terms);
+	strcpy(url, search); // change to libft functions
+	strcat(url, terms); // change to libft functions
 	url = rm_nline(url);
 	system(url);
+	free(url);
 }
 // This file has it's own main for the sake of unit testing.
 // change the function name to something else when including it for the project
