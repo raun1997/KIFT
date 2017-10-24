@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
+// put headers in kift.h for final build
 
 void	curl(char *url)
 {
@@ -32,20 +33,54 @@ void	curl(char *url)
 	printf("%u\n\n", res);
 }
 
-int	main(void)
-{
-	char *url;
-	char *url2;
-	char *url3;
-	char *url4;
 
-	url = "https://ipinfo.io"; // Gathers information about IP (Public IP/City/State/Country/Zip/Lat+long cordinates)
-	url2 = "http://api.openweathermap.org/data/2.5/weather?q=Fremont,us&units=imperial&appid=8c1b88f5ffc94dc1c4ce9d94b4520325"; // Weather api
-	url3 = "https://www.mapquestapi.com/traffic/v2/incidents?&outFormat=json&boundingBox=37.73786977649298%2C-121.5963363647461%2C37.36197126180853%2C-122.3653793334961&key=FB5ba01IvuP1ZdqzhOqABgzNTGwW482A"; // Mapquest traffic api
-	url4 = "https://api.intra.42.fr/v2/campus/fremont/cursus/42/events?access_token=e0740d75277a6e2b4116517f6afbf5652207236bb11da94dc2e0539e21ecb92a"; // 42 API
+void ip_info(void)
+{
+	char	*url;
+
+	url = "https://ipinfo.io";
 	curl(url);
-	curl(url2);
-	curl(url3);
-	curl(url4);
-	return (0);
+}
+
+void get_events(char *token)
+{
+	//this needs a way for the token to be refreshed every call before it can be used
+	char	*prefix;
+	char	*url;
+
+	prefix = "https://api.intra.42.fr/v2/campus/fremont/cursus/42/"
+			"events?access_token="; // 42 API
+	url = (char *)malloc(sizeof(strlen(prefix)) + strlen(token) + 1);
+	strcpy(url, prefix);
+	strcat(url, token);
+	curl(url);
+	// may need to be freed when used
+}
+
+void get_weather(char *coords) { //call this with "Fremont,us if ip_info not parsed yet"
+	char	*prefix;
+	char	*postfix;
+	char	*url;
+
+	prefix = "http://api.openweathermap.org/data/2.5/weather?q=";
+	postfix = "&units=imperial&appid=8c1b88f5ffc94dc1c4ce9d94b4520325";
+	url = (char *)malloc(sizeof(strlen(prefix) + strlen(coords)
+			+ strlen(postfix) + 1)); //replace strlens with libft
+	strcpy(url, prefix);
+	strcat(url, coords);
+	strcat(url, postfix);
+	curl(url);
+	// may leak memory, it's malloc'd without a free but
+	// gave free error when I tried freeing it here
+}
+
+void get_traffic(void)
+{
+	char	*url;
+
+	url = "https://www.mapquestapi.com/traffic/v2/incidents?&out"
+			"Format=json&boundingBox=37.73325402695063%2C-121.5963"
+			"363647461%2C37.36688292232763%2C-122.3653793334961&key"
+			"=FB5ba01IvuP1ZdqzhOqABgzNTGwW482A";
+	curl(url);
 }
