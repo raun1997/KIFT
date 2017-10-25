@@ -3,3 +3,4 @@ libft/*.a
 obj
 node_modules
 ._*
+SDL/build

@@ -13,7 +13,7 @@
 NAME_CL = client
 NAME_SV = server
 CFLAGS = -Wall -Werror -Wextra -g
-MODELDIR = $(shell pkg-config --variable=modeldir pocketsphinx)
+MDIR = $(shell pkg-config --variable=MDIR pocketsphinx)
 SPHX_FLAGS = $(shell pkg-config --cflags pocketsphinx sphinxbase)
 SPHX_LIBS = $(shell pkg-config --libs pocketsphinx sphinxbase)
 SDL_LIBS = $(shell sdl2-config --cflags --libs)
@@ -25,7 +25,7 @@ SDL_LIBS = $(shell sdl2-config --cflags --libs)
 SRC_SV = server.c
 SRC_CL = client.c
 SRC_HL = network_helpers.c
-SRC_CM = example.c
+SRC_CM = about_user.c api_calls.c web_search.c command_handler.c
 
 OBJ_CL_FILES = $(SRC_CL:.c=.o)
 OBJ_SV_FILES = $(SRC_SV:.c=.o)
@@ -35,7 +35,7 @@ OBJ_CM_FILES = $(SRC_CM:.c=.o)
 HL_DIR = ./src/helpers/
 CL_DIR = ./src/client/
 SV_DIR = ./src/server/
-CM_DIR = ./src/server/cmds/
+CM_DIR = ./src/client/cmds/
 OBJ_DIR = ./obj/
 OBJ_CL_DIR = ./obj/client/
 OBJ_CM_DIR = ./obj/server/
@@ -43,6 +43,7 @@ OBJ_SV_DIR = ./obj/server/
 OBJ_HL_DIR = ./obj/helpers/
 INC_DIR = ./include/
 LIBFT_DIR = ./libft/
+SDL = ./SDL/include/
 SPHX_DIR = ./cmusphinx/
 
 #SRC = $(addprefix $(HL_DIR), $(SRC_HL))
@@ -54,7 +55,7 @@ OBJ_HL = $(addprefix $(OBJ_HL_DIR), $(OBJ_HL_FILES))
 OBJ_CM = $(addprefix $(OBJ_SV_DIR), $(OBJ_CM_FILES))
 LIBFT = $(addprefix $(LIBFT_DIR), libft.a)
 
-LINK = -L $(LIBFT_DIR) -lft $(SPHX_LIBS) $(SDL_LIBS)
+LINK = -L $(LIBFT_DIR) -lft -lcurl $(SPHX_LIBS) $(SDL_LIBS)
 
 all: obj $(LIBFT) $(NAME_CL) $(NAME_SV)
 
@@ -64,16 +65,16 @@ obj:
 	@mkdir -p $(OBJ_HL_DIR)
 
 $(OBJ_CL_DIR)%.o:$(CL_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -DMODELDIR=\"$(MODELDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
 
 $(OBJ_SV_DIR)%.o:$(SV_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -DMODELDIR=\"$(MODELDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
 
 $(OBJ_HL_DIR)%.o:$(HL_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -DMODELDIR=\"$(MODELDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
 
 $(OBJ_CM_DIR)%.o:$(CM_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -DMODELDIR=\"$(MODELDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
 
 $(LIBFT):
 	@echo "\033[32mCompiling libft...\033[0m"

@@ -30,10 +30,3 @@ void command_handler(char *command) {
 		system("say -v \"Zarvox\" \"Ian is smart, handsome, and everyone"
 		"likes him\"");
 }
-
-int	main(int ac, char **av)
-{
-
-	command_handler(av[1]);
-	return (0);
-}

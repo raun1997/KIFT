@@ -54,14 +54,3 @@ void web_search(char *terms)
 	system(url);
 	free(url);
 }
-// This file has it's own main for the sake of unit testing.
-// change the function name to something else when including it for the project
-int	main(void)
-{
-	char *input;
-	printf("Enter a string\n");
-	input = malloc(100);
-	fgets(input, 99, stdin);
-	web_search(input);
-	return (0);
-}

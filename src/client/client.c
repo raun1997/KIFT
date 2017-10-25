@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../SDL/include/SDL.h"
+//#include "../../SDL/include/SDL.h"
 #include "kift.h"
 
 SDL_AudioSpec			g_spec;

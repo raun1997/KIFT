@@ -96,11 +96,3 @@ void get_traffic(void)
 	filename = "json/get_traffic.json";
 	curl(url, filename);
 }
-
-int main(void)
-{
-	ip_info();
-	get_traffic();
-	get_weather("Fremont,us");
-	return (0);
-}
