@@ -23,7 +23,7 @@ SDL_LIBS = $(shell sdl2-config --cflags --libs)
 # CM - Files with commands to be executed by server
 
 SRC_SV = server.c
-SRC_CL = client.c
+SRC_CL = client.c	record.c
 SRC_HL = network_helpers.c
 
 #SRC_CM = example.c

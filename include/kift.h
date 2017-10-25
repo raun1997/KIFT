@@ -75,5 +75,7 @@ typedef enum
 int   example(char *str);
 char	*get_ip_str(void);
 const char *recognize_from_microphone();
+void ip_info(void);
+void					recognize(t_client_connection *con);
 
 #endif
