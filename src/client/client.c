@@ -16,12 +16,6 @@
 SDL_AudioSpec			g_spec;
 SDL_AudioDeviceID		g_devid_in = 0;
 
-typedef struct				s_client_connection
-{
-	int						sock;
-	struct addrinfo		*p;
-}							t_client_connection;
-
 /* TODO : initialize this shit */
 
 ps_decoder_t *ps;                  // create pocketsphinx decoder structure
@@ -32,24 +26,19 @@ int16 adbuf[4096];                 // buffer array to hold audio data
 uint8 utt_started, an_speech;      // flags for tracking active speech - has speech started? - is speech currently happening?
 int32 k;                           // holds the number of frames in the audio buffer
 
-// static void	prepare_google_term(char *term)
-// {
-// 	while (*term)
-// 	{
-// 		if (*term == ' ')
-// 			*term = '+';
-// 		term++;
-// 	}
-// }
-
 int			parse_reply(char *hyp)
 {
 	int		result;
 	char	command[BUF_SIZE];
 
 	result = 0;
-	//printf("%s\n", hyp);
 	SDL_PauseAudioDevice(g_devid_in, SDL_TRUE);
+
+	/* Take str replies */
+
+	if (hyp) exit(1);
+	if (!strcmp(hyp, "the")) exit(1);
+
 	SDL_PauseAudioDevice(g_devid_in, SDL_FALSE);
 	return (result);
 }
@@ -64,7 +53,6 @@ static void				AudioCallback(void *userdata, Uint8 *stream, int len)
 	num_samples = len / 2;
 	send(con->sock, &num_samples, sizeof(num_samples), 0);
 	rc = send(con->sock, stream, len, 0);
-	//printf("Sending len : %d\n", len);
 }
 
 void					recognize(t_client_connection *con)
@@ -124,18 +112,8 @@ void *get_in_addr(struct sockaddr *sa)
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-// int 	record(void)
-// {
-//
-//   /* TODO : make this more robust than a system call */
-//
-//   system("electron ./."); /* return(syscall)) */
-//   return (1);
-// }
-
 static int				init_connect(t_client_connection *con, char *addr)
 {
-	//printf("Client connecting to addr : %s\n", addr);
 	struct addrinfo hints, *servinfo;
 	int sockfd;
 	char *ip;
@@ -170,7 +148,7 @@ static int				init_connect(t_client_connection *con, char *addr)
       continue;
     }
     printf("Client socket : %d\n", sockfd);
-    break;
+    break ;
   }
   if (con->p == NULL)
   {
@@ -180,26 +158,6 @@ static int				init_connect(t_client_connection *con, char *addr)
   inet_ntop(con->p->ai_family, get_in_addr((struct sockaddr *)con->p->ai_addr), s, sizeof s);
   printf("client: connecting to %s\n", s);
   freeaddrinfo(servinfo);
-
-
-
-	//con->sock = socket(PF_INET, SOCK_STREAM, 0);
-//	if (con->sock == -1)
-	//{
-	//	printf("Could not create socket\n");
-	//	return (-1);
-	//}
-	//printf("Socket(%d)\n", con->sock);
-	//puts("Socket created");
-	//con->server.ai_addr.s_addr = inet_addr(addr ? addr : "127.0.0.1");
-	//con->server.ai_family = AF_UNSPEC;
-	//con->server.ai_port = htons(8888);
-	//if (connect(con->sock, (struct sockaddr *)&con->server,
-	//	sizeof(con->server)) < 0)
-	//{
-		//perror("connect failed. Error");
-	//	return (-1);
-	//}
 	return (0);
 }
 
@@ -208,15 +166,12 @@ int main(int argc, char **argv)
   t_client_connection	*con;
 
   	con = malloc(sizeof(t_client_connection));
-  	//if (argc &&
-		//printf("");
 		if (init_connect(con, get_ip_str()) < 0)
   		return (-1);
   	printf("Connected\n");
   	recognize(con);
   	close(con->sock);
 		if (con) free(con);
-		//SMART_FREE(con);
   	return (0);
 
   // int	sockfd, numbytes;

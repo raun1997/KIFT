@@ -1,0 +1,25 @@
+ sabre send an email
+ sabre set alarm
+ sabre start countdown
+ sabre who is connected
+ sabre where is the my base
+ sabre play massacre playlist
+ sabre blind the enemy
+ sabre go dark
+ sabre dim the lights
+ sabre make the lights brighter
+ sabre search for enemies
+ sabre check history
+ sabre check the weather
+ sabre how is the traffic
+ sabre launch the nukes
+ sabre shutdown
+ sabre notify enemies of incomming attack
+ sabre go to encom
+ sabre tell me a joke
+ sabre who is the king
+ sabre how are you feeling
+ sabre hack the election
+ sabre how many licks does it take to get to the center of a tootsie pop
+ sabre what is the current enemy count
+ sabre how long until dee day

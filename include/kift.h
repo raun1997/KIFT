@@ -45,6 +45,24 @@
 # define S_RATE (44100)
 # define BUF_SIZE 512
 
+typedef struct				s_client_connection
+{
+	int						sock;
+	struct addrinfo		*p;
+}							t_client_connection;
+
+
+
+typedef enum
+{
+	UTT_STATE_WAITING = 0,
+	UTT_STATE_LISTENING,
+	UTT_STATE_FINISHED,
+	UTT_STATE_ERROR,
+	UTT_STATE_MAX,
+	UTT_STATE_QUIT
+} t_utt_states;
+
 int   example(char *str);
 char	*get_ip_str(void);
 const char *recognize_from_microphone();
