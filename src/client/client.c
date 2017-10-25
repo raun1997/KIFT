@@ -17,25 +17,19 @@ SDL_AudioDeviceID		g_devid_in = 0;
 
 /* TODO : initialize this shit */
 
-ps_decoder_t *ps;                  // create pocketsphinx decoder structure
-cmd_ln_t *config;                  // create configuration structure
-ad_rec_t *ad;                      // create audio recording structure - for use with ALSA functions
-
-int16 adbuf[4096];                 // buffer array to hold audio data
-uint8 utt_started, an_speech;      // flags for tracking active speech - has speech started? - is speech currently happening?
-int32 k;                           // holds the number of frames in the audio buffer
-
 int			parse_reply(char *hyp)
 {
 	int		result;
 	char	command[BUF_SIZE];
+	char 	*com;
 
 	result = 0;
 	SDL_PauseAudioDevice(g_devid_in, SDL_TRUE);
 	/* Take str replies */
-	if (!strstr(hyp, "WHO ARE YOU")) system("say \"I am SABRE\"");
-	else if (!strstr(hyp, "I AM SAM")) system("say \"Nice to meet you\"");
-	else if (!strstr(hyp, "HELLO")) system("say \"Hello\"");
+	//printf("%s\n", strtok (hyp, " "));
+	if (strstr(hyp, "YOU")) system("say \"I am SABRE\"");
+	else if (strstr(hyp, "I AM")) system("say \"Nice to meet you\"");
+	else if (strstr(hyp, "HELLO")) system("say \"Hello\"");
 	if (!strcmp(hyp, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
 
 	SDL_PauseAudioDevice(g_devid_in, SDL_FALSE);
