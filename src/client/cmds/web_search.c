@@ -10,11 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-// change include to kift.h and add other includes to kift.h
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "kift.h"
 
 // Possible Optimization : encode special characters because they won't
 // translate properly in search terms
@@ -53,15 +49,4 @@ void web_search(char *terms)
 	url = rm_nline(url);
 	system(url);
 	free(url);
-}
-// This file has it's own main for the sake of unit testing.
-// change the function name to something else when including it for the project
-int	main(void)
-{
-	char *input;
-	printf("Enter a string\n");
-	input = malloc(100);
-	fgets(input, 99, stdin);
-	web_search(input);
-	return (0);
 }

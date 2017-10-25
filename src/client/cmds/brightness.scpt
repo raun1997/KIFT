@@ -59,7 +59,6 @@ on run argv
 	else if (item 1 of argv as string = "off") then
 		do shell script "pmset displaysleepnow"
 		say "display turned off" using "Zarvox"
-
 	else if (item 1 of argv as string = "on") then
 		do shell script "caffeinate -u -t 2"
 		say "display turned on" using "Zarvox"

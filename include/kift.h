@@ -31,10 +31,12 @@
 #include <pocketsphinx.h>
 #include <sphinxbase/ad.h>
 #include <sphinxbase/err.h>
+#include <curl/curl.h>
 //#include "portaudio.h"
 // Leaving portaudio out until we have a use for it, build intructions
 // depend on use case.
 #include "audio.h"
+#include "SDL.h"
 
 # define AUDIO_PATH "src/client/audio/"
 # define BACKLOG 16
