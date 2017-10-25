@@ -10,33 +10,100 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <time.h>
+#include <stdlib.h>
 #include "kift.h"
 
-SDL_AudioSpec			g_spec;
-SDL_AudioDeviceID		g_devid_in = 0;
+#define CMD_PATH "src/client/cmds/"
 
-/* TODO : initialize this shit */
+SDL_AudioSpec			g_spec;
+SDL_AudioDeviceID	g_devid_in = 0;
+
+int			random_num(int min, int max)
+{
+	int	diff;
+
+	diff = max - min;
+	return ((int)(((double)(diff + 1) / RAND_MAX) * rand() + min));
+}
 
 int			parse_reply(char *hyp)
 {
 	int		result;
 	char	command[BUF_SIZE];
-	char 	*com;
+	char	*com;
+	int		random;
 
 	result = 0;
 	SDL_PauseAudioDevice(g_devid_in, SDL_TRUE);
-	/* Take str replies */
-	//printf("%s\n", strtok (hyp, " "));
-	if (strstr(hyp, "YOU")) system("say \"I am SABRE\"");
-	else if (strstr(hyp, "I AM")) system("say \"Nice to meet you\"");
-	else if (strstr(hyp, "HELLO")) system("say \"Hello\"");
-	if (!strcmp(hyp, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
-
+	if (strstr(hyp, "WHO") && strstr(hyp, "YOU"))
+		system("say \"I am SABRE\"");
+	else if (strstr(hyp, "I AM"))
+		system("say \"Nice to meet you\"");
+	else if (strstr(hyp, "HELLO"))
+		system("say \"Hello\"");
+	else if (strstr(hyp, "WHAT") && strstr(hyp, "YOU") && strstr(hyp, "ARE"))
+		system("say \"I am machine\"");
+	else if (strstr(hyp, "WHO") && strstr(hyp, "KING"))
+	{
+		random = random_num(0, 2);
+		if (random == 1)
+			system("say \"I... am\"");
+		else if (random == 2)
+			system("say \"Me\"");
+	}
+	else if (strstr(hyp, "JOKE") && strstr(hyp, "TELL"))
+	{
+		random = random_num(0, 3);
+		if (random == 0)
+			system("say \"A man is washing the car with his son.\
+										The son asks,\
+										Dad, can’t you just use a sponge?\"");
+		if (random == 1)
+		{
+			system("say \"What’s the stupidest animal in the jungle?\"");
+			if (strstr(hyp, "WHAT"))
+				system("say \"A polar bear\"");
+		}
+		if (random == 2)
+			system("say \"A limbo champion walks into a bar.\
+										They are disqualified\"");
+		if (random == 3)
+			system("say \"Two goldfish are in a tank.\
+										One looks to the other and says,\
+										You man the guns while I drive.\"");
+		if (random == 4)
+			system("say \"\"");
+		if (random == 5)
+			system("say \"\"");
+		if (random == 6)
+			system("say \"\"");
+		if (random == 7)
+			system("say \"\"");
+		if (random == 8)
+			system("say \"\"");
+		if (random == 9)
+			system("say \"\"");
+	}
+	else if (strstr(hyp, "LAUNCH") && strstr(hyp, "NUKES"))
+		system("sh src/client/cmds/nukes.sh");
+	else if (strstr(hyp, "SEND AN EMAIL"))
+	{
+		system("say \"Sending mail... \"");
+		system("python src/client/cmds/send_email.py");
+	}
+	else if (strstr(hyp, "DIM") && strstr(hyp, "LIGHTS"))
+		system("sh src/client/cmds/brightness.sh less");
+	if (!strcmp(hyp, "SHUTDOWN"))
+	{
+		system("say \"Goodbye\"");
+		return (-1);
+	}
 	SDL_PauseAudioDevice(g_devid_in, SDL_FALSE);
 	return (result);
 }
 
-static void				AudioCallback(void *userdata, Uint8 *stream, int len)
+static void	AudioCallback(void *userdata, Uint8 *stream, int len)
 {
 	t_client_connection	*con;
 	int32_t				num_samples;
@@ -48,7 +115,7 @@ static void				AudioCallback(void *userdata, Uint8 *stream, int len)
 	rc = send(con->sock, stream, len, 0);
 }
 
-void					recognize(t_client_connection *con)
+void				recognize(t_client_connection *con)
 {
 	const char			*devname;
 	SDL_AudioSpec		wanted;
@@ -79,7 +146,7 @@ void					recognize(t_client_connection *con)
 	}
 	SDL_PauseAudioDevice(g_devid_in, SDL_FALSE);
 	printf("Sending...\n");
-	while (42)
+	while (TRUE)
 	{
 		memset(server_reply, 0, BUF_SIZE * 2);
 		if (recv(con->sock, server_reply, BUF_SIZE * 2, 0) < 0)
@@ -97,149 +164,76 @@ void					recognize(t_client_connection *con)
 	SDL_Quit();
 }
 
-void *get_in_addr(struct sockaddr *sa)
+void				*get_in_addr(struct sockaddr *sa)
 {
-  if (sa->sa_family == AF_INET)
-  	return &(((struct sockaddr_in*)sa)->sin_addr);
-  return &(((struct sockaddr_in6*)sa)->sin6_addr);
+	if (sa->sa_family == AF_INET)
+		return (&(((struct sockaddr_in*)sa)->sin_addr));
+	return (&(((struct sockaddr_in6*)sa)->sin6_addr));
 }
 
-static int				init_connect(t_client_connection *con, char *addr)
+static int	init_connect(t_client_connection *con, char *addr)
 {
-	struct addrinfo hints, *servinfo;
-	int sockfd;
-	char *ip;
-	int rv;
-	char s[INET6_ADDRSTRLEN];
+	struct addrinfo	hints;
+	struct addrinfo	*servinfo;
+	int	sockfd;
+	int	rv;
+	char	*ip;
+	char	s[INET6_ADDRSTRLEN];
 
 	hints.ai_family = AF_UNSPEC;
- 	hints.ai_socktype = SOCK_STREAM;
-  hints.ai_protocol = 0;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = 0;
 	ip = get_ip_str();
-  if ((rv = getaddrinfo(ip, PORT, &hints, &servinfo)) != 0)
+	if ((rv = getaddrinfo(ip, PORT, &hints, &servinfo)) != 0)
 	{
-    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-    return 1;
-  }
-  con->p = servinfo;
-
-	while (con->p != NULL) /* CYCLE THROUGH STUFF */
-  {
-    if ((sockfd = socket(con->p->ai_family, con->p->ai_socktype, con->p->ai_protocol)) == -1)
-    {
-      perror("client: socket");
-      con->p = con->p->ai_next;
-      continue;
-    }
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+		return (1);
+	}
+	con->p = servinfo;
+	while (con->p != NULL)
+	{
+		if ((sockfd = socket(con->p->ai_family,
+			con->p->ai_socktype, con->p->ai_protocol)) == -1)
+		{
+			perror("client: socket");
+			con->p = con->p->ai_next;
+			continue;
+		}
 		con->sock = sockfd;
-    if (connect(sockfd, con->p->ai_addr, con->p->ai_addrlen) == -1)
-    {
-      close(sockfd);
-      perror("client: connect");
-      con->p = con->p->ai_next;
-      continue;
-    }
-    printf("Client socket : %d\n", sockfd);
-    break ;
-  }
-  if (con->p == NULL)
-  {
-    fprintf(stderr, "client: failed to connect\n");
-    return (-1);
-  }
-  inet_ntop(con->p->ai_family, get_in_addr((struct sockaddr *)con->p->ai_addr), s, sizeof s);
-  printf("client: connecting to %s\n", s);
-  freeaddrinfo(servinfo);
+		if (connect(sockfd, con->p->ai_addr, con->p->ai_addrlen) == -1)
+		{
+			close(sockfd);
+			perror("client: connect");
+			con->p = con->p->ai_next;
+			continue;
+		}
+		printf("Client socket : %d\n", sockfd);
+		break ;
+	}
+	if (con->p == NULL)
+	{
+		fprintf(stderr, "client: failed to connect\n");
+		return (-1);
+	}
+	inet_ntop(con->p->ai_family,
+		get_in_addr((struct sockaddr *)con->p->ai_addr), s, sizeof(s));
+	printf("client: connecting to %s\n", s);
+	freeaddrinfo(servinfo);
 	return (0);
 }
 
-int main(int argc, char **argv)
+int				main(int argc, char **argv)
 {
-  t_client_connection	*con;
+	t_client_connection	*con;
 
-  	con = malloc(sizeof(t_client_connection));
-		if (init_connect(con, get_ip_str()) < 0)
-  		return (-1);
-  	printf("Connected\n");
-  	recognize(con);
-  	close(con->sock);
-		if (con) free(con);
-  	return (0);
-
-  // int	sockfd, numbytes;
-  // char	*output;
-  // struct 	addrinfo hints, *servinfo, *p;
-  // int 	rv;
-  // char 	s[INET6_ADDRSTRLEN];
-  // char	*ip;
-  //
-  // /* Client takes IP address of machine as an argument */
-  //
-	// //if (argc == 1)
-	// //{
-  //
-  // /* TODO : drop this shit into a function */
-  //
-	// memset(&hints, 0, sizeof hints);
-  // hints.ai_family = AF_UNSPEC;
- // 	hints.ai_socktype = SOCK_STREAM;
-  // hints.ai_protocol = 0;
-	// ip = get_ip_str();
-  // if ((rv = getaddrinfo(ip, PORT, &hints, &servinfo)) != 0)
-	// {
-  //   fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-  //   return 1;
-  // }
-  // p = servinfo;
-  // while (p != NULL) /* CYCLE THROUGH STUFF */
-  // {
-  //   if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
-  //   {
-  //     perror("client: socket");
-  //     p = p->ai_next;
-  //     continue;
-  //   }
-  //   if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1)
-  //   {
-  //     close(sockfd);
-  //     perror("client: connect");
-  //     p = p->ai_next;
-  //     continue;
-  //   }
-  //   printf("Client socket : %d\n", sockfd);
-  //   break;
-  // }
-  // if (p == NULL)
-  // {
-  //   fprintf(stderr, "client: failed to connect\n");
-  //   return (2);
-  // }
-  // inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
-  // printf("client: connecting to %s\n", s);
-  // freeaddrinfo(servinfo);
-  //
-  // /* TODO : drop this shit into a function */
-  //
-  // int u = 1;
-  // while (u)
-  // {
-  //
-  //   /* Internal loop while recording user */
-  //   /* TODO : activate recording function on some input instead of attempting to record continuously */
-  //   /* NOTE : Using external input we can let the user decide when to activate, just not sure how ... */
-  //
-  //   record();
-  //   printf("Finished recording ... \n");
-  //   //printf();
-  //   if ((numbytes = send(sockfd, "./src/client/audio/test4.wav", MAXDATASIZE - 1, 0)) == -1)
-  //   {
-  //     perror("send");
-  //    	exit(1);
-  //   }
-  //   printf("number of bytes sent : %d\n", numbytes);
-  //   printf("client: sent file successfully\n");
-  //   close(sockfd);
-  //   u = !u;
-  // }
-  // return 0;
+	srand(time(NULL));
+	con = malloc(sizeof(t_client_connection));
+	if (init_connect(con, get_ip_str()) < 0)
+		return (-1);
+	printf("Connected\n");
+	recognize(con);
+	close(con->sock);
+	if (con)
+		free(con);
+	return (0);
 }

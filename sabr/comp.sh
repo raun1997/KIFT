@@ -11,7 +11,7 @@
  -lsnfn sabr.transcription \
  -accumdir .
 
- ./sphinxtrain/src/programs/mllr_solve/mllr_solve \
+ ./mllr_solve/mllr_solve \
     -meanfn cmu-en-us/means \
     -varfn cmu-en-us/variances \
     -outmllrfn mllr_matrix -accumdir .
