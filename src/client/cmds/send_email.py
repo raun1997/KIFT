@@ -17,7 +17,7 @@ import os
 from email.mime.multipart import MIMEMultipart
 from email.MIMEText import MIMEText
 
-if len(sys.argv) == 3:
+if len(sys.argv) == 2:
 	try:
 		fromaddr = "self.aware.battle.robot@gmail.com"
 		single = ["elliot.tregoning@gmail.com", "enwagner@gmail.com", "samuelpcollet@gmail.com", "samuelrnorth@gmail.com"]
@@ -37,7 +37,7 @@ if len(sys.argv) == 3:
 		msg['To'] = toaddr
 		msg['Subject'] = "S.A.B.R. Alert"
 
-		body = sys.argv[2]
+		body = "You have been targetted by the self-aware battle robot."
 		msg.attach(MIMEText(body, 'plain'))
 
 		server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -51,6 +51,6 @@ if len(sys.argv) == 3:
 	except Exception, exc:
 		sys.exit( "Sending mail failed; %s" % str(exc) )
 	else:
-		os.system('sh email_confirmation.sh ' + sys.argv[1])
+		os.system('sh ~/kift/src/client/cmds/email_confirmation.sh ' + sys.argv[1])
 else:
 	print "Invalid Argument Count"

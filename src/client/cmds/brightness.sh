@@ -12,6 +12,8 @@
 
 #!/bin/sh
 
+CMD_PTH="./src/client/cmds/brightness.scpt"
+
 if [ "$#" == 1 ] ; then
 	# Check brightness level, if already at min/max, replies as such and exits
 	CMD=$(brightness -l | grep brightness | sed 's/.* //')
@@ -49,21 +51,21 @@ if [ "$#" == 1 ] ; then
 
 	# Change brightness level up or down
 	if [ $1 == "up" ] ; then
-		osascript brightness.scpt up
+		osascript $CMD_PTH up
 	elif [ $1 == "down" ] ; then
-		osascript brightness.scpt down
+		osascript $CMD_PTH down
 	elif [ $1 == "max" ] ; then
-		osascript brightness.scpt max
+		osascript $CMD_PTH max
 	elif [ $1 == "min" ] ; then
-		osascript brightness.scpt min
+		osascript $CMD_PTH min
 	elif [ $1 == "more" ] ; then
-		osascript brightness.scpt more
+		osascript $CMD_PTH more
 	elif [ $1 == "less" ] ; then
-		osascript brightness.scpt less
+		osascript $CMD_PTH less
 	elif [ $1 == "off" ] ; then
-		osascript brightness.scpt off
+		osascript $CMD_PTH off
 	elif [ $1 == "on" ] ; then
-		osascript brightness.scpt on
+		osascript $CMD_PTH on
 	fi
 else
 	echo invalid arg count
