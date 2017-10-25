@@ -25,7 +25,7 @@ SDL_LIBS = $(shell sdl2-config --cflags --libs)
 SRC_SV = server.c
 SRC_CL = client.c
 SRC_HL = network_helpers.c
-SRC_CM = example.c
+#SRC_CM = example.c
 
 OBJ_CL_FILES = $(SRC_CL:.c=.o)
 OBJ_SV_FILES = $(SRC_SV:.c=.o)

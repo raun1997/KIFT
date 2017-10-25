@@ -33,12 +33,9 @@ int			parse_reply(char *hyp)
 
 	result = 0;
 	SDL_PauseAudioDevice(g_devid_in, SDL_TRUE);
-
 	/* Take str replies */
-	int points = 1;
-
-	if (!strstr(hyp, "WHO ARE YOU") && points++) system("say \"I am SABRE\"");
-	else if (!strstr(hyp, "I AM SAM") || points == 1) system("say \"Nice to meet you\"");
+	if (!strstr(hyp, "WHO ARE YOU")) system("say \"I am SABRE\"");
+	else if (!strstr(hyp, "I AM SAM")) system("say \"Nice to meet you\"");
 	else if (!strstr(hyp, "HELLO")) system("say \"Hello\"");
 	if (!strcmp(hyp, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
 
