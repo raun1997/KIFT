@@ -10,10 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <curl/curl.h>
+#include "kift.h"
 // put headers in kift.h for final build
 void	curl(char *url, char *filename)
 {

@@ -10,11 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-// change include to kift.h and add other includes to kift.h
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "kift.h"
 
 // Possible Optimization : encode special characters because they won't
 // translate properly in search terms

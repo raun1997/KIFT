@@ -9,11 +9,7 @@
 /*   Updated: 2017/10/24 19:54:10 by etregoni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "kift.h"
 // voice commands need some work for new transcriptions
 void command_handler(char *command) {
 	if (strcmp(command, "send email") == 0)
