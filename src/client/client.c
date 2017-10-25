@@ -35,9 +35,12 @@ int			parse_reply(char *hyp)
 	SDL_PauseAudioDevice(g_devid_in, SDL_TRUE);
 
 	/* Take str replies */
+	int points = 1;
 
-	if (hyp) exit(1);
-	if (!strcmp(hyp, "the")) exit(1);
+	if (!strstr(hyp, "WHO ARE YOU") && points++) system("say \"I am SABRE\"");
+	else if (!strstr(hyp, "I AM SAM") || points == 1) system("say \"Nice to meet you\"");
+	else if (!strstr(hyp, "HELLO")) system("say \"Hello\"");
+	if (!strcmp(hyp, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
 
 	SDL_PauseAudioDevice(g_devid_in, SDL_FALSE);
 	return (result);
@@ -94,9 +97,8 @@ void					recognize(t_client_connection *con)
 			perror("recv failed");
 			return ;
 		}
-		printf("\nServer reply :\n");
-		printf("%s\n", server_reply);
-		if (parse_reply(server_reply) == 1)
+		printf("\nServer reply : %s\n", server_reply);
+		if (parse_reply(server_reply) == -1)
 			break ;
 	}
 	SDL_Log("Shutting down.\n");

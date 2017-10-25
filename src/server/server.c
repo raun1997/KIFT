@@ -29,19 +29,27 @@ static int read_data(int16 *buf, int num_samples, int socket)
 	int num_bytes = num_samples * sizeof(int16);
 	int rc;
 
+  //printf("num_bytes : %d\n", num_bytes);
 	while(num_bytes)
 	{
 		rc = recv(socket, buf_pointer, num_bytes, 0);
-		if (rc < 0)
-			return (rc);
+    //printf("%s", buf_pointer);
+  //  printf("recieve : %d\n", rc);
+    if (rc < 0)
+    {
+		//	printf("negative\n");
+      return (rc);
+    }
 		if (rc > 0)
 		{
 			num_bytes -= rc;
 			buf_pointer += rc;
+  //    printf("positive\n");
 			continue ;
 		}
 		return (0);
 	}
+//  printf("samples\n");
 	return (num_samples);
 }
 
@@ -54,17 +62,18 @@ static int read_samples(ps_decoder_t *g_ps, int num_samples, int socket)
 	{
 		rc = read_data(client_message,
 			(num_samples > BUF_SIZE) ? BUF_SIZE : num_samples, socket);
-    if (rc > 0 && (g_utt_state == UTT_STATE_WAITING))
+    if (rc > 0)
 		{
 			uint8 in_speech = 0;
 			ps_process_raw(g_ps, client_message, rc, FALSE, FALSE);
       in_speech = ps_get_in_speech(g_ps);
-      if (in_speech)
+      if (in_speech && (g_utt_state == UTT_STATE_WAITING))
       {
         g_utt_state = UTT_STATE_LISTENING;
         printf("Listening... %hhu\n", in_speech);
       }
-      if (!in_speech)
+      //printf("%d\n", in_speech);
+      if (!in_speech && (g_utt_state == UTT_STATE_LISTENING))
       {
         g_utt_state = UTT_STATE_FINISHED;
       }
@@ -88,7 +97,7 @@ int go(int read_size, int num_samples, int new_fd)
 		{
 			printf("Error or disconnected (%d) errno = %d\n", rc, errno);
 			g_utt_state = UTT_STATE_ERROR;
-			break;
+			break ;
 		}
 		if (num_samples)
 		{
@@ -99,7 +108,7 @@ int go(int read_size, int num_samples, int new_fd)
 				g_utt_state = UTT_STATE_ERROR;
 			}
 		}
-	} while(g_utt_state < UTT_STATE_FINISHED);
+	} while(g_utt_state != UTT_STATE_FINISHED);
 	return (0);
 }
 
@@ -107,6 +116,10 @@ int set(int rv, int read_size, int new_fd, const char *hyp, int score)
 {
 	while(g_utt_state < UTT_STATE_QUIT) /* Internal loop processes individual requests from client */
 	{
+    /* TODO : GET THIS SHIT WORKING
+    * ps_set_keyphrase(g_ps, "keyphrase_search", "sabre");
+    * ps_set_search(g_ps, "keyphrase_search");
+    */
 		rv = ps_start_utt(g_ps);
 		g_utt_state = UTT_STATE_WAITING;
 		int32 num_samples = 0;
@@ -171,23 +184,20 @@ int process(int sockfd, socklen_t sin_size,
 	int					score;
 	int					read_size;
 
-	while (1) /* External loop while processing connections */
+	read_size = 0;
+  sin_size = sizeof(their_addr);
+  new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
+  if (new_fd < 0)
   {
-		read_size = 0;
-    sin_size = sizeof(their_addr);
-    new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
-    if (new_fd < 0)
-    {
-      perror("accept");
-      exit(1);
-    }
-    inet_ntop(their_addr.sa_family,
-      get_in_addr((struct sockaddr *)&their_addr),
-        s, sizeof(s));
-		printf("server: got connection from %s\n", s);
-		ready(rv, read_size, new_fd, hyp, score);
-		close(new_fd);
-	}
+    perror("accept");
+    exit(1);
+  }
+  inet_ntop(their_addr.sa_family,
+    get_in_addr((struct sockaddr *)&their_addr),
+      s, sizeof(s));
+	printf("server: got connection from %s\n", s);
+	ready(rv, read_size, new_fd, hyp, score);
+  close(new_fd);
   return (0);
 }
 

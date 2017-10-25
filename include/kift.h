@@ -51,7 +51,14 @@ typedef struct				s_client_connection
 	struct addrinfo		*p;
 }							t_client_connection;
 
-
+typedef struct	s_connection
+{
+	int			socket_desc;
+	int			client_sock;
+	char		client_message[BUF_SIZE];
+	struct		sockaddr_in server;
+	struct		sockaddr_in client;
+} t_connection;
 
 typedef enum
 {
