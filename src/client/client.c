@@ -12,18 +12,18 @@
 
 #include "kift.h"
 
-void *get_in_addr(struct sockaddr *sa)
+void		*get_in_addr(struct sockaddr *sa)
 {
   if (sa->sa_family == AF_INET)
   	return &(((struct sockaddr_in*)sa)->sin_addr);
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-static void				find_socket(t_client_connection *con)
+static void	find_socket(t_client_connection *con)
 {
 	int sockfd;
 
-	while (con->p != NULL) /* CYCLE THROUGH STUFF */
+	while (con->p != NULL)
 	{
 		if ((sockfd = socket(con->p->ai_family, con->p->ai_socktype,
 				con->p->ai_protocol)) == -1)
@@ -45,7 +45,7 @@ static void				find_socket(t_client_connection *con)
 	}
 }
 
-static struct addrinfo		*get_servinfo(t_client_connection *con)
+static void	get_servinfo(t_client_connection *con)
 {
 	struct addrinfo hints;
 	struct addrinfo *servinfo;
@@ -61,14 +61,15 @@ static struct addrinfo		*get_servinfo(t_client_connection *con)
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		exit(-1);
 	}
-	return (servinfo);
+	con->p = servinfo;
+	return ;
 }
 
-static int				init_connect(t_client_connection *con)
+static int	init_connect(t_client_connection *con)
 {
 	char s[INET6_ADDRSTRLEN];
 
-	con->p = get_servinfo(con);
+	get_servinfo(con);
 	find_socket(con);
 	if (con->p == NULL)
 	{
@@ -82,7 +83,7 @@ static int				init_connect(t_client_connection *con)
 	return (0);
 }
 
-int main(int argc, char **argv)
+int			main(int argc, char **argv)
 {
 	t_client_connection	*con;
 
