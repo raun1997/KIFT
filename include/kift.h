@@ -48,32 +48,32 @@
 # define S_RATE (44100)
 # define BUF_SIZE 512
 
-typedef struct				s_client_connection
+typedef struct			s_client_connection
 {
-	int						sock;
+	int					sock;
 	struct addrinfo		*p;
-}							t_client_connection;
+}						t_client_connection;
 
-typedef struct	s_connection
+typedef struct			s_connection
 {
-	int			socket_desc;
-	int			client_sock;
-	char		client_message[BUF_SIZE];
-	struct		sockaddr_in server;
-	struct		sockaddr_in client;
-} t_connection;
+	int					socket_desc;
+	int					client_sock;
+	char				client_message[BUF_SIZE];
+	struct				sockaddr_in server;
+	struct				sockaddr_in client;
+}						t_connection;
 
-typedef struct		s_audio_var
+typedef struct			s_audio_var
 {
 	SDL_AudioDeviceID	devid_in;
 	SDL_AudioSpec		w;
 	SDL_AudioSpec		spec;
 	char				serv_rep[BUF_SIZE * 2];
-}					t_audio_var;
+}						t_audio_var;
 
 typedef enum
 {
-	UTT_STATE_WAITING = 0,
+	UTT_STATE_WAITING,
 	UTT_STATE_LISTENING,
 	UTT_STATE_FINISHED,
 	UTT_STATE_ERROR,
@@ -81,10 +81,10 @@ typedef enum
 	UTT_STATE_QUIT
 } t_utt_states;
 
-int   example(char *str);
-char	*get_ip_str(void);
-const char *recognize_from_microphone();
-void ip_info(void);
+int   					example(char *str);
+char					*get_ip_str(void);
+const char				*recognize_from_microphone();
+void					ip_info(void);
 void					recognize(t_client_connection *con);
 
 #endif
