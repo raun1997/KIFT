@@ -59,7 +59,7 @@ LIBFT = $(addprefix $(LIBFT_DIR), libft.a)
 
 LINK = -L $(LIBFT_DIR) -lft -lcurl $(SPHX_LIBS) $(SDL_LIBS)
 
-all: obj $(LIBFT) $(NAME_CL) $(NAME_SV)
+all: obj $(LIBFT) $(NAME_CL) $(NAME_SV) dep
 
 obj:
 	@mkdir -p $(OBJ_CL_DIR)
@@ -92,6 +92,12 @@ $(NAME_SV): $(OBJ_SV) $(OBJ_HL) $(OBJ_CM)
 	@echo "\033[32mCompiling $(NAME_SV)...\033[0m"
 	@gcc $(OBJ_SV) $(OBJ_HL) $(OBJ_CM) $(LINK) $(SPHX_LIBS) -lm -o $(NAME_SV)
 	@echo "\033[1;4;32m[\xE2\x9C\x94] $(NAME_SV) Created.\033[0m\n"
+
+dep:
+	@echo "\033[32m================================================\033[0m"
+	@echo "\033[32m-----------  Please run 'npm install'  ---------\033[0m"
+	@echo "\033[32m------  to install electron dependencies  ------\033[0m"
+	@echo "\033[32m================================================\033[0m"
 
 clean:
 	@echo "\033[31mRemoving source objects...\033[0m"
