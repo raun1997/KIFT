@@ -28,16 +28,18 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <assert.h>
-#include <pocketsphinx.h>
-#include <sphinxbase/ad.h>
-#include <sphinxbase/err.h>
+#include "../libft/libft.h"
+// #include <pocketsphinx.h>
+// #include <sphinxbase/ad.h>
+// #include <sphinxbase/err.h>
 #include <curl/curl.h>
 #include <sys/select.h>
 //#include "portaudio.h"
 // Leaving portaudio out until we have a use for it, build intructions
 // depend on use case.
-#include "audio.h"
-#include "SDL.h"
+#include "../jsmn/jsmn.h"
+// #include "audio.h"
+// #include "SDL.h"
 
 # define AUDIO_PATH "src/client/audio/"
 # define BACKLOG 16
@@ -47,6 +49,7 @@
 # define MAXDATASIZE 100
 # define S_RATE (44100)
 # define BUF_SIZE 512
+# define EVENTNO 3
 
 typedef struct			s_client_connection
 {
@@ -63,13 +66,23 @@ typedef struct			s_connection
 	struct				sockaddr_in client;
 }						t_connection;
 
-typedef struct			s_audio_var
+// typedef struct			s_audio_var
+// {
+// 	SDL_AudioDeviceID	devid_in;
+// 	SDL_AudioSpec		w;
+// 	SDL_AudioSpec		spec;
+// 	char				serv_rep[BUF_SIZE * 2];
+// }						t_audio_var;
+
+typedef struct	s_parse
 {
-	SDL_AudioDeviceID	devid_in;
-	SDL_AudioSpec		w;
-	SDL_AudioSpec		spec;
-	char				serv_rep[BUF_SIZE * 2];
-}						t_audio_var;
+	char		*js;
+	jsmn_parser	p;
+	jsmntok_t	t[128];
+	int			tok;
+	FILE		*file;
+	int			bytes;
+}				t_parse;
 
 typedef enum
 {
@@ -86,5 +99,17 @@ char					*get_ip_str(void);
 const char				*recognize_from_microphone();
 void					ip_info(void);
 void					recognize(t_client_connection *con);
+
+void	curl(char *url, char *filename);
+void ip_info(void);
+void get_events(char *token);
+void get_weather(char *coords);
+void get_traffic(void);
+int			parse_json_in(const char *file, int call);
+
+void		parse_traffic(t_parse *p);
+void		parse_location(t_parse *p);
+void		parse_weather(t_parse *p);
+void		parse_events(t_parse *p);
 
 #endif

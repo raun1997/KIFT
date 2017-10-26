@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "kift.h"
+#include "../../../include/kift.h"
 // put headers in kift.h for final build
-void	curl(char *url, char *filename)
+void	simple_curl(char *url, char *filename)
 {
 	CURL *curl;
 	FILE *file;
@@ -20,13 +20,14 @@ void	curl(char *url, char *filename)
 	remove(filename);
 	curl = curl_easy_init();
 	file = fopen(filename, "ab+");
-	if(curl) {
-    	curl_easy_setopt(curl, CURLOPT_URL, url);
+	if(curl)
+	{
+		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
 		curl_easy_perform(curl);
-    	curl_easy_cleanup(curl);
+		curl_easy_cleanup(curl);
 		fclose(file);
-  	}
+	}
 }
 
 
@@ -37,46 +38,37 @@ void ip_info(void)
 
 	url = "https://ipinfo.io";
 	filename ="json/ip_info.json";
-	curl(url, filename);
-	system("sh parse_ip_info.sh");
+	simple_curl(url, filename);
+	parse_json_in(filename, 2);
 }
 
 void get_events(char *token)
 {
 	//this needs a way for the token to be refreshed every call before it can be used
 	//token expires 7200 sec afer being granted, so doesn't really work well.
-	char	*prefix;
 	char	*url;
 	char	*filename;
 
-	prefix = "https://api.intra.42.fr/v2/campus/fremont/cursus/42/"
-			"events?access_token="; // 42 API
-	url = (char *)malloc(sizeof(strlen(prefix)) + strlen(token) + 1);
+	asprintf(&url, "https://api.intra.42.fr/v2/campus/fremont/cursus/42/"
+			"events?access_token=%s", token); // 42 API
 	filename = "json/ft_events.json";
-	strcpy(url, prefix);
-	strcat(url, token);
-	curl(url, filename);
-	// may need to be freed when used
+	simple_curl(url, filename);
+	parse_json_in(filename, 3);
 }
 
 void get_weather(char *coords)
 { 								//call this with the following coords if parsing not implemented yet
-	char	*prefix;			// "37.5486260, -122.0591160"
-	char	*postfix;			// "94555"
+								// "37.5486260, -122.0591160"
+								// "94555"
 	char	*url;				// "Fremont, us"
 	char	*filename;
 
-	prefix = "http://api.openweathermap.org/data/2.5/weather?q=";
-	postfix = "&units=imperial&appid=8c1b88f5ffc94dc1c4ce9d94b4520325";
-	url = (char *)malloc(sizeof(strlen(prefix) + strlen(coords)
-			+ strlen(postfix) + 1)); //replace strlens with libft
 	filename = "json/get_weather.json";
-	strcpy(url, prefix);
-	strcat(url, coords);
-	strcat(url, postfix);
-	curl(url, filename);
+	asprintf(&url, "http://api.openweathermap.org/data/2.5/weather?q=%s"
+		"&units=imperial&appid=8c1b88f5ffc94dc1c4ce9d94b4520325", coords);
+	simple_curl(url, filename);
 	free(url);
-	// gave free error when I tried freeing it before, be careful
+	parse_json_in(filename, 0);
 }
 
 void get_traffic(void)
@@ -91,5 +83,6 @@ void get_traffic(void)
 			"363647461%2C37.36688292232763%2C-122.3653793334961&key"
 			"=FB5ba01IvuP1ZdqzhOqABgzNTGwW482A";
 	filename = "json/get_traffic.json";
-	curl(url, filename);
+	simple_curl(url, filename);
+	parse_json_in(filename, 1);
 }
