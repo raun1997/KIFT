@@ -75,7 +75,8 @@ static int				init_connect(t_client_connection *con)
 		fprintf(stderr, "client: failed to connect\n");
 		return (-1);
 	}
-	inet_ntop(con->p->ai_family, get_in_addr((struct sockaddr *)con->p->ai_addr), s, sizeof s);
+	inet_ntop(con->p->ai_family,
+			get_in_addr((struct sockaddr *)con->p->ai_addr), s, sizeof s);
 	printf("client: connecting to %s\n", s);
 	freeaddrinfo(con->p);
 	return (0);
