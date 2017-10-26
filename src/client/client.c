@@ -87,6 +87,7 @@ int			main(int argc, char **argv)
 {
 	t_client_connection	*con;
 
+	system("electron ./.");
 	con = malloc(sizeof(t_client_connection));
 		if (init_connect(con))
 		return (-1);

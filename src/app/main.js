@@ -10,21 +10,19 @@
 //                                                                            //
 // ************************************************************************** //
 
-/* This just works */
-/* EDIT : this may be a little broken */
+const {app, BrowserWindow} = require('electron')
+const url = require('url')
+const path = require('path')
 
-var record = require('node-record-lpcm16')
-var fs = require('fs')
+let win
 
-var file = fs.createWriteStream('./src/client/audio/test4.wav', { encoding: 'binary' })
+function createWindow () {
+  win = new BrowserWindow({width: 1300, height: 1100, frame: false, resizable: false})
+  win.loadURL(url.format({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
+}
 
-record.start({
-  sampleRate: 44100,
-  verbose: true
-}).pipe(file)
-
-// Stop recording after three seconds
-setTimeout(function () {
-  record.stop()
-  process.exit()
-}, 10000)
+app.on('ready', createWindow)
