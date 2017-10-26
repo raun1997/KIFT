@@ -65,10 +65,10 @@ typedef struct	s_connection
 
 typedef struct		s_audio_var
 {
-	SDL_AudioSpec		*w;
-	char				serv_rep[BUF_SIZE * 2];
 	SDL_AudioDeviceID	devid_in;
+	SDL_AudioSpec		w;
 	SDL_AudioSpec		spec;
+	char				serv_rep[BUF_SIZE * 2];
 }					t_audio_var;
 
 typedef enum
