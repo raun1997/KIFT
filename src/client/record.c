@@ -12,31 +12,26 @@
 
 #include "kift.h"
 
-SDL_AudioSpec			g_spec;
-SDL_AudioDeviceID		g_devid_in = 0;
+// SDL_AudioSpec			g_spec;
+// SDL_AudioDeviceID		g_devid_in = 0;
 
 /* TODO : initialize this shit */
 
-int			parse_reply(char *hyp)
+int			parse_reply(t_audio_var *audio)
 {
-	int		result;
-	char	command[BUF_SIZE];
-	char 	*com;
-
-	result = 0;
-	SDL_PauseAudioDevice(g_devid_in, SDL_TRUE);
+	SDL_PauseAudioDevice(audio->devid_in, SDL_TRUE);
 	/* Take str replies */
 	//printf("%s\n", strtok (hyp, " "));
-	if (strstr(hyp, "YOU")) system("say \"I am SABRE\"");
-	else if (strstr(hyp, "I AM")) system("say \"Nice to meet you\"");
-	else if (strstr(hyp, "HELLO")) system("say \"Hello\"");
-	if (!strcmp(hyp, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
+	if (strstr(audio->serv_rep, "YOU")) system("say \"I am SABRE\"");
+	else if (strstr(audio->serv_rep, "I AM")) system("say \"Nice to meet you\"");
+	else if (strstr(audio->serv_rep, "HELLO")) system("say \"Hello\"");
+	if (!strcmp(audio->serv_rep, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
 
-	SDL_PauseAudioDevice(g_devid_in, SDL_FALSE);
-	return (result);
+	SDL_PauseAudioDevice(audio->devid_in, SDL_FALSE);
+	return (0);
 }
 
-static void				AudioCallback(void *userdata, Uint8 *stream, int len)
+static void	AudioCallback(void *userdata, Uint8 *stream, int len)
 {
 	t_client_connection	*con;
 	int32_t				num_samples;
@@ -48,7 +43,7 @@ static void				AudioCallback(void *userdata, Uint8 *stream, int len)
 	rc = send(con->sock, stream, len, 0);
 }
 
-void					init_sdl_var(SDL_AudioSpec *wanted, t_client_connection *con)
+void		init_sdl_var(SDL_AudioSpec *wanted, t_client_connection *con)
 {
 	SDL_zero(*wanted);
 	wanted->freq = 16000;
@@ -59,45 +54,47 @@ void					init_sdl_var(SDL_AudioSpec *wanted, t_client_connection *con)
 	wanted->userdata = con;
 }
 
-void					recognize(t_client_connection *con)
+void		get_audio(t_client_connection *con, t_audio_var *audio)
 {
-	const char			*devname;
-	SDL_AudioSpec		wanted;
-	char				server_reply[BUF_SIZE * 2];
+	while (42)
+	{
+		memset(audio->serv_rep, 0, BUF_SIZE * 2);
+		if (recv(con->sock, audio->serv_rep, BUF_SIZE * 2, 0) < 0)
+		{
+			perror("recv failed");
+			return ;
+		}
+		printf("\nServer reply : %s\n", audio->serv_rep);
+		if (parse_reply(audio) == -1)
+			return ;
+	}
+}
 
-	devname = NULL;
-	memset(server_reply, 0, BUF_SIZE * 2);
+void		recognize(t_client_connection *con)
+{
+	t_audio_var		audio;
+	SDL_AudioSpec	wanted;
+
 	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 	if (SDL_Init(SDL_INIT_AUDIO) < 0)
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
 			"Couldn't initialize SDL: %s\n", SDL_GetError());
 	init_sdl_var(&wanted, con);
-	SDL_zero(g_spec);
-	g_devid_in = SDL_OpenAudioDevice(NULL, SDL_TRUE, &wanted, &g_spec, 0);
-	printf("g_devid_in (%d)\n", g_devid_in);
-	if (!g_devid_in)
+	SDL_zero(audio.spec);
+	audio.devid_in = SDL_OpenAudioDevice(NULL, SDL_TRUE, &wanted, &audio.spec, 0);
+	printf("devid_in (%d)\n", audio.devid_in);
+	if (!audio.devid_in)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
 			"Couldn't open an audio device for capture: %s!\n", SDL_GetError());
 		SDL_Quit();
 		exit(1);
 	}
-	SDL_PauseAudioDevice(g_devid_in, SDL_FALSE);
+	SDL_PauseAudioDevice(audio.devid_in, 0);
 	printf("Sending...\n");
-	while (42)
-	{
-		memset(server_reply, 0, BUF_SIZE * 2);
-		if (recv(con->sock, server_reply, BUF_SIZE * 2, 0) < 0)
-		{
-			perror("recv failed");
-			return ;
-		}
-		printf("\nServer reply : %s\n", server_reply);
-		if (parse_reply(server_reply) == -1)
-			break ;
-	}
+	get_audio(con, &audio);
 	SDL_Log("Shutting down.\n");
-	SDL_PauseAudioDevice(g_devid_in, 1);
-	SDL_CloseAudioDevice(g_devid_in);
+	SDL_PauseAudioDevice(audio.devid_in, 1);
+	SDL_CloseAudioDevice(audio.devid_in);
 	SDL_Quit();
 }

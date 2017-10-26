@@ -32,6 +32,7 @@
 #include <sphinxbase/ad.h>
 #include <sphinxbase/err.h>
 #include <curl/curl.h>
+#include <sys/select.h>
 //#include "portaudio.h"
 // Leaving portaudio out until we have a use for it, build intructions
 // depend on use case.
@@ -61,6 +62,14 @@ typedef struct	s_connection
 	struct		sockaddr_in server;
 	struct		sockaddr_in client;
 } t_connection;
+
+typedef struct		s_audio_var
+{
+	SDL_AudioSpec		*w;
+	char				serv_rep[BUF_SIZE * 2];
+	SDL_AudioDeviceID	devid_in;
+	SDL_AudioSpec		spec;
+}					t_audio_var;
 
 typedef enum
 {
