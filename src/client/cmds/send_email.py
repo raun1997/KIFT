@@ -37,7 +37,7 @@ if len(sys.argv) == 2:
 		msg['To'] = toaddr
 		msg['Subject'] = "S.A.B.R. Alert"
 
-		body = "You have been targetted by the self-aware battle robot."
+		body = "You have been targeted by the self-aware battle robot."
 		msg.attach(MIMEText(body, 'plain'))
 
 		server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -51,6 +51,6 @@ if len(sys.argv) == 2:
 	except Exception, exc:
 		sys.exit( "Sending mail failed; %s" % str(exc) )
 	else:
-		os.system('sh ~/kift/src/client/cmds/email_confirmation.sh ' + sys.argv[1])
+		os.system('sh ./src/client/cmds/email_confirmation.sh ' + sys.argv[1])
 else:
 	print "Invalid Argument Count"
