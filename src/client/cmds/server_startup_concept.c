@@ -1,34 +1,25 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include "../jsmn/jsmn.h"
-#include <curl/curl.h>
-#include <sys/types.h>
-#include <signal.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <unistd.h>
+// #include <string.h>
+// #include "../../../jsmn/jsmn.h"
+#include "kift.h"
+// #include <curl/curl.h>
+// #include <sys/types.h>
+// #include <signal.h>
 
-typedef struct			s_curl
-{
-	char				*url;
-	char				*header;
-	char				*data;
-	long				data_size;
-	FILE				*file;
-	struct curl_slist	*head;
-	char				*token;
-	char				*refresh;
-	int					time;
-}						t_curl;
-
-typedef struct	s_parse
-{
-	char		*js;
-	jsmn_parser	p;
-	jsmntok_t	t[128];
-	int			tok;
-	FILE		*file;
-	int			bytes;
-}				t_parse;
+// typedef struct			s_curl
+// {
+// 	char				*url;
+// 	char				*header;
+// 	char				*data;
+// 	long				data_size;
+// 	FILE				*file;
+// 	struct curl_slist	*head;
+// 	char				*token;
+// 	char				*refresh;
+// 	int					time;
+// }						t_curl;
 
 static int	jsoneq(const char *json, jsmntok_t *tok, const char *s)
 {
@@ -38,7 +29,7 @@ static int	jsoneq(const char *json, jsmntok_t *tok, const char *s)
 	return (-1);
 }
 
-void	curl(t_curl *vars)
+static void	api_curl(t_curl *vars)
 {
 	CURL *curl;
 	CURLcode res;
@@ -59,6 +50,7 @@ void	curl(t_curl *vars)
 			curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, vars->data_size);
 			curl_easy_setopt(curl, CURLOPT_POSTFIELDS, vars->data);
 		}
+		//printf("%s\n%s\n%s\n%p\n", vars->url, vars->header, vars->data, vars->file);
 		res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 	}
@@ -81,34 +73,31 @@ static void	file_read(t_parse *p, const char *filename)
 	fclose(p->file);
 }
 
-void		parse_json_tkn(t_curl *vars, const char *filename)
+void	parse_json_tkn(t_curl *v, const char *filename)
 {
 	t_parse p;
 	int i;
 
-	// p.file = fopen(filename, "r");
 	file_read(&p, filename);
-	// fclose(p.file);
 	jsmn_init(&p.p);
 	p.tok = jsmn_parse(&p.p, p.js, p.bytes, p.t, sizeof(p.t)/sizeof(p.t[0]));
 	if (p.tok < 0)
 		printf("Failed to parse JSON: %d\n", p.tok);
-	else if (p.tok == 0 || (p.t[0].type != JSMN_OBJECT && p.t[0].type != JSMN_ARRAY))
+	else if (p.tok == 0 ||
+			(p.t[0].type != JSMN_OBJECT && p.t[0].type != JSMN_ARRAY))
 		printf("Object or Array expected: %d\n", (i = p.tok));
 	i = 0;
 	while (++i < p.tok)
 	{
 		if (jsoneq(p.js, &p.t[i], "access_token") == 0 && i++)
-			vars->token = strndup(p.js + p.t[i].start, p.t[i].end - p.t[i].start);
+			v->token = strndup(p.js + p.t[i].start, p.t[i].end - p.t[i].start);
 		else if (jsoneq(p.js, &p.t[i], "refresh_token") == 0 && i++)
-			vars->refresh = strndup(p.js + p.t[i].start, p.t[i].end - p.t[i].start);
+			v->ref = strndup(p.js + p.t[i].start, p.t[i].end - p.t[i].start);
 		else if (jsoneq(p.js, &p.t[i], "expires_in") == 0 && i++)
-			vars->time = atoi(p.js + p.t[i].start);
-
+			v->time = atoi(p.js + p.t[i].start);
 	}
 	if (p.js)
 		free(p.js);
-	return ;
 }
 
 void	refresh_token(t_curl *vars, const char *filename)
@@ -121,19 +110,22 @@ void	refresh_token(t_curl *vars, const char *filename)
 		while (secs--)
 			sleep(1);
 		vars->data_size = asprintf(&vars->data, "grant_type=refresh_token&"
-		"client_id=69a8a73072a7e218b981b00c9b2a8d07cab196e377d84c6aa964e96be485e2c4&"
-		"client_secret=d3617e1efd7d1374b02e78495920ff7640c9fa3b5954f54e2811ab1940dc52cb&"
-		"code=%s&"
-		"redirect_uri=https://self-aware-battle-robot.herokuapp.com/", vars->refresh);
-		vars->file = fopen("42_api_token.json", "w");
-		curl(vars);
+			"client_id="
+			"69a8a73072a7e218b981b00c9b2a8d07cab196e377d84c6aa964e96be485e2c4&"
+			"client_secret="
+			"d3617e1efd7d1374b02e78495920ff7640c9fa3b5954f54e2811ab1940dc52cb&"
+			"code=%s&"
+			"redirect_uri=https://self-aware-battle-robot.herokuapp.com/",
+			vars->ref);
+		vars->file = fopen(filename, "w");
+		api_curl(vars);
 		fclose(vars->file);
 		vars->time = 7200;
 	}
 	exit(0);
 }
 
-void		init_curl_vars(t_curl *vars)
+static void	init_curl_vars(t_curl *vars)
 {
 	char s[256];
 	char c;
@@ -157,7 +149,7 @@ void		init_curl_vars(t_curl *vars)
 	vars->head = NULL;
 }
 
-int main(int ac, char **av)
+pid_t		api_token_grab(const char *filename)
 {
 	t_curl vars;
 	pid_t pid;
@@ -168,17 +160,18 @@ int main(int ac, char **av)
 		"response_type=code\"");
 	printf("enter code from redirect (found in url as \"?code={code}\"):\n");
 	init_curl_vars(&vars);
-	vars.file = fopen("42_api_token.json", "w");
-	curl(&vars);
+	if (!(vars.file = fopen(filename, "w")))
+		perror("buttfukcer");
+	api_curl(&vars);
 	fclose(vars.file);
-	parse_json_tkn(&vars, "42_api_token.json");
-	printf("%d\n%s\n%s\n", vars.time, vars.token, vars.refresh);
+	parse_json_tkn(&vars, filename);
 	pid = fork();
 	if (pid == 0)
-		refresh_token(&vars, "42_api_token.json");
+		refresh_token(&vars, filename);
+	return (pid);
 /* return pid to store in a struct. on shutdown of client, call the following functions */
 	// kill(pid, SIGTERM);
 	// sleep(5);
-	// if (waitpid(pid, &status, WNOHANG) != pid)
+	// if (waitpid(pid, NULL, WNOHANG) != pid)
 	// 	kill(pid, SIGKILL);
 }

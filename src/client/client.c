@@ -83,95 +83,23 @@ static int	init_connect(t_client_connection *con)
 	return (0);
 }
 
-int			main(int argc, char **argv)
+int			main()
 {
 	t_client_connection	*con;
 
-	system("electron ./.");
+	con->pid = api_token_grab("src/client/cmds/json/42_api_token.json");
+	system("electron ./ &");
 	con = malloc(sizeof(t_client_connection));
-		if (init_connect(con))
+	if (init_connect(con))
 		return (-1);
 	printf("Connected\n");
 	recognize(con);
 	close(con->sock);
-		if (con) free(con);
+	kill(con->pid, SIGTERM);
+	sleep(5);
+	if (waitpid(con->pid, NULL, WNOHANG) != con->pid)
+		kill(con->pid, SIGKILL);
+	if (con)
+		free(con);
 	return (0);
 }
-
-  // int	sockfd, numbytes;
-  // char	*output;
-  // struct 	addrinfo hints, *servinfo, *p;
-  // int 	rv;
-  // char 	s[INET6_ADDRSTRLEN];
-  // char	*ip;
-  //
-  // /* Client takes IP address of machine as an argument */
-  //
-	// //if (argc == 1)
-	// //{
-  //
-  // /* TODO : drop this shit into a function */
-  //
-	// memset(&hints, 0, sizeof hints);
-  // hints.ai_family = AF_UNSPEC;
- // 	hints.ai_socktype = SOCK_STREAM;
-  // hints.ai_protocol = 0;
-	// ip = get_ip_str();
-  // if ((rv = getaddrinfo(ip, PORT, &hints, &servinfo)) != 0)
-	// {
-  //   fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-  //   return 1;
-  // }
-  // p = servinfo;
-  // while (p != NULL) /* CYCLE THROUGH STUFF */
-  // {
-  //   if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
-  //   {
-  //     perror("client: socket");
-  //     p = p->ai_next;
-  //     continue;
-  //   }
-  //   if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1)
-  //   {
-  //     close(sockfd);
-  //     perror("client: connect");
-  //     p = p->ai_next;
-  //     continue;
-  //   }
-  //   printf("Client socket : %d\n", sockfd);
-  //   break;
-  // }
-  // if (p == NULL)
-  // {
-  //   fprintf(stderr, "client: failed to connect\n");
-  //   return (2);
-  // }
-  // inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
-  // printf("client: connecting to %s\n", s);
-  // freeaddrinfo(servinfo);
-  //
-  // /* TODO : drop this shit into a function */
-  //
-  // int u = 1;
-  // while (u)
-  // {
-  //
-  //   /* Internal loop while recording user */
-  //   /* TODO : activate recording function on some input instead of attempting to record continuously */
-  //   /* NOTE : Using external input we can let the user decide when to activate, just not sure how ... */
-  //
-  //   record();
-  //   printf("Finished recording ... \n");
-  //   //printf();
-  //   if ((numbytes = send(sockfd, "./src/client/audio/test4.wav", MAXDATASIZE - 1, 0)) == -1)
-  //   {
-  //     perror("send");
-  //    	exit(1);
-  //   }
-  //   printf("number of bytes sent : %d\n", numbytes);
-  //   printf("client: sent file successfully\n");
-  //   close(sockfd);
-  //   u = !u;
-  // }
-  // return 0;
-// }

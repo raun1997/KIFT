@@ -1,9 +1,5 @@
-// #include "kift.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include "../../../include/kift.h"
+// #include "../../../jsmn/jsmn.h"
+#include "kift.h"
 
 const char *g_month[12] =
 {
@@ -213,14 +209,14 @@ int			parse_json_in(const char *file, int call)
 	return (0);
 }
 
-int main(int ac, char **av)
-{
-	if (!strcmp(av[1], "traffic"))
-		get_traffic();
-	else if (!strcmp(av[1], "ip"))
-		ip_info();
-	else if (!strcmp(av[1], "94555"))
-		get_weather("37.5486260, -122.0591160");
-	else if (av[1])
-		get_events(av[1]);
-}
+// int main(int ac, char **av)
+// {
+// 	if (!strcmp(av[1], "traffic"))
+// 		get_traffic();
+// 	else if (!strcmp(av[1], "ip"))
+// 		ip_info();
+// 	else if (!strcmp(av[1], "94555"))
+// 		get_weather("37.5486260, -122.0591160");
+// 	else if (av[1])
+// 		get_events("json/42_api_token.json");
+// }

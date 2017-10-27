@@ -19,10 +19,10 @@ int			parse_reply(t_audio_var *audio)
 	SDL_PauseAudioDevice(audio->devid_in, SDL_TRUE);
 	/* Take str replies */
 	//printf("%s\n", strtok (hyp, " "));
-	if (strstr(audio->serv_rep, "YOU")) system("say \"I am SABRE\"");
-	else if (strstr(audio->serv_rep, "I AM")) system("say \"Nice to meet you\"");
-	else if (strstr(audio->serv_rep, "HELLO")) system("say \"Hello\"");
-	if (!strcmp(audio->serv_rep, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
+	// if (strstr(audio->serv_rep, "YOU")) system("say \"I am SABRE\"");
+	// else if (strstr(audio->serv_rep, "I AM")) system("say \"Nice to meet you\"");
+	// else if (strstr(audio->serv_rep, "HELLO")) system("say \"Hello\"");
+	// if (!strcmp(audio->serv_rep, "SHUTDOWN")){system("say \"Goodbye\""); return(-1);}
 
 	SDL_PauseAudioDevice(audio->devid_in, SDL_FALSE);
 	return (0);

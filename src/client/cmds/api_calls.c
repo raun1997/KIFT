@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../../include/kift.h"
+#include "kift.h"
 // put headers in kift.h for final build
 void	simple_curl(char *url, char *filename)
 {
@@ -42,15 +42,17 @@ void ip_info(void)
 	parse_json_in(filename, 2);
 }
 
-void get_events(char *token)
+void get_events(const char *tokfile)
 {
-	//this needs a way for the token to be refreshed every call before it can be used
-	//token expires 7200 sec afer being granted, so doesn't really work well.
 	char	*url;
 	char	*filename;
+	t_curl	vars;
 
+	parse_json_tkn(&vars, tokfile);
 	asprintf(&url, "https://api.intra.42.fr/v2/campus/fremont/cursus/42/"
-			"events?access_token=%s", token); // 42 API
+			"events?access_token=%s", vars.token);
+	free(vars.token);
+	free(vars.refresh);
 	filename = "json/ft_events.json";
 	simple_curl(url, filename);
 	parse_json_in(filename, 3);

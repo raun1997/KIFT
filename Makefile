@@ -27,7 +27,8 @@ SRC_CL = client.c	record.c
 SRC_HL = network_helpers.c
 
 #SRC_CM = example.c
-SRC_CM = about_user.c api_calls.c web_search.c command_handler.c
+SRC_CM = about_user.c api_calls.c web_search.c command_handler.c \
+		server_startup_concept.c json_parser.c
 
 OBJ_CL_FILES = $(SRC_CL:.c=.o)
 OBJ_SV_FILES = $(SRC_SV:.c=.o)
@@ -40,13 +41,14 @@ SV_DIR = ./src/server/
 CM_DIR = ./src/client/cmds/
 OBJ_DIR = ./obj/
 OBJ_CL_DIR = ./obj/client/
-OBJ_CM_DIR = ./obj/server/
+OBJ_CM_DIR = ./obj/client/
 OBJ_SV_DIR = ./obj/server/
 OBJ_HL_DIR = ./obj/helpers/
 INC_DIR = ./include/
 LIBFT_DIR = ./libft/
 SDL = ./SDL/include/
 SPHX_DIR = ./cmusphinx/
+JSMN_DIR = ./jsmn/
 
 #SRC = $(addprefix $(HL_DIR), $(SRC_HL))
 #CLNT = $(addprefix $(CL_DIR), $(SRC_CL))
@@ -54,43 +56,50 @@ SPHX_DIR = ./cmusphinx/
 OBJ_CL = $(addprefix $(OBJ_CL_DIR), $(OBJ_CL_FILES))
 OBJ_SV = $(addprefix $(OBJ_SV_DIR), $(OBJ_SV_FILES))
 OBJ_HL = $(addprefix $(OBJ_HL_DIR), $(OBJ_HL_FILES))
-OBJ_CM = $(addprefix $(OBJ_SV_DIR), $(OBJ_CM_FILES))
+OBJ_CM = $(addprefix $(OBJ_CM_DIR), $(OBJ_CM_FILES))
 LIBFT = $(addprefix $(LIBFT_DIR), libft.a)
+JSMN = $(addprefix $(JSMN_DIR), libjsmn.a)
 
-LINK = -L $(LIBFT_DIR) -lft -lcurl $(SPHX_LIBS) $(SDL_LIBS)
+LINK = -L $(LIBFT_DIR) -L $(JSMN_DIR) -lft -lcurl -ljsmn $(SPHX_LIBS) $(SDL_LIBS)
 
-all: obj $(LIBFT) $(NAME_CL) $(NAME_SV) dep
+all: obj $(LIBFT) $(JSMN) $(NAME_CL) $(NAME_SV) dep
 
 obj:
+	@mkdir -p $(OBJ_CM_DIR)
 	@mkdir -p $(OBJ_CL_DIR)
 	@mkdir -p $(OBJ_SV_DIR)
 	@mkdir -p $(OBJ_HL_DIR)
 
 $(OBJ_CL_DIR)%.o:$(CL_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -I $(JSMN_DIR) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
 
 $(OBJ_SV_DIR)%.o:$(SV_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -I $(JSMN_DIR) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
 
 $(OBJ_HL_DIR)%.o:$(HL_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -I $(JSMN_DIR) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
 
 $(OBJ_CM_DIR)%.o:$(CM_DIR)%.c
-	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+	@gcc -I $(LIBFT_DIR) -I $(INC_DIR) -I $(SDL) -I $(JSMN_DIR) -DMDIR=\"$(MDIR)\" $(SPHX_FLAGS) -o $@ -c $<
+
+$(JSMN):
+	@echo "\033[32mCompiling JSMN...\033[0m"
+	@make -C $(JSMN_DIR)
+	@echo "\033[1;4;32m[\xE2\x9C\x94] libjsmn created.\033[0m\n"
 
 $(LIBFT):
 	@echo "\033[32mCompiling libft...\033[0m"
 	@make -C $(LIBFT_DIR)
 	@echo "\033[1;4;32m[\xE2\x9C\x94] libft created.\033[0m\n"
 
-$(NAME_CL): $(OBJ_CL) $(OBJ_HL)
+$(NAME_CL): $(OBJ_CL) $(OBJ_HL) $(OBJ_CM)
 	@echo "\033[32mCompiling $(NAME_CL)...\033[0m"
-	@gcc $(OBJ_HL) $(OBJ_CL) $(LINK) $(SDL_LIBS) -lm -o $(NAME_CL)
+	@gcc $(OBJ_HL) $(OBJ_CL) $(OBJ_CM) $(LINK) $(SDL_LIBS) -lm -o $(NAME_CL)
 	@echo "\033[1;4;32m[\xE2\x9C\x94] $(NAME_CL) Created.\033[0m\n"
 
-$(NAME_SV): $(OBJ_SV) $(OBJ_HL) $(OBJ_CM)
+$(NAME_SV): $(OBJ_SV) $(OBJ_HL)
 	@echo "\033[32mCompiling $(NAME_SV)...\033[0m"
-	@gcc $(OBJ_SV) $(OBJ_HL) $(OBJ_CM) $(LINK) $(SPHX_LIBS) -lm -o $(NAME_SV)
+	@gcc $(OBJ_SV) $(OBJ_HL) $(LINK) $(SPHX_LIBS) -lm -o $(NAME_SV)
 	@echo "\033[1;4;32m[\xE2\x9C\x94] $(NAME_SV) Created.\033[0m\n"
 
 dep:

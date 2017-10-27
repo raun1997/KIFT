@@ -29,17 +29,19 @@
 #include <signal.h>
 #include <assert.h>
 #include "../libft/libft.h"
-// #include <pocketsphinx.h>
-// #include <sphinxbase/ad.h>
-// #include <sphinxbase/err.h>
+#include <pocketsphinx.h>
+#include <sphinxbase/ad.h>
+#include <sphinxbase/err.h>
 #include <curl/curl.h>
 #include <sys/select.h>
+#include <sys/types.h>
+#include <signal.h>
 //#include "portaudio.h"
 // Leaving portaudio out until we have a use for it, build intructions
 // depend on use case.
-#include "../jsmn/jsmn.h"
-// #include "audio.h"
-// #include "SDL.h"
+#include "jsmn.h"
+#include "audio.h"
+#include "SDL.h"
 
 # define AUDIO_PATH "src/client/audio/"
 # define BACKLOG 16
@@ -55,6 +57,7 @@ typedef struct			s_client_connection
 {
 	int					sock;
 	struct addrinfo		*p;
+	pid_t				pid;
 }						t_client_connection;
 
 typedef struct			s_connection
@@ -66,13 +69,26 @@ typedef struct			s_connection
 	struct				sockaddr_in client;
 }						t_connection;
 
-// typedef struct			s_audio_var
-// {
-// 	SDL_AudioDeviceID	devid_in;
-// 	SDL_AudioSpec		w;
-// 	SDL_AudioSpec		spec;
-// 	char				serv_rep[BUF_SIZE * 2];
-// }						t_audio_var;
+typedef struct			s_audio_var
+{
+	SDL_AudioDeviceID	devid_in;
+	SDL_AudioSpec		w;
+	SDL_AudioSpec		spec;
+	char				serv_rep[BUF_SIZE * 2];
+}						t_audio_var;
+
+typedef struct			s_curl
+{
+	char				*url;
+	char				*header;
+	char				*data;
+	long				data_size;
+	FILE				*file;
+	struct curl_slist	*head;
+	char				*token;
+	char				*ref;
+	int					time;
+}						t_curl;
 
 typedef struct	s_parse
 {
@@ -94,15 +110,23 @@ typedef enum
 	UTT_STATE_QUIT
 } t_utt_states;
 
+void user_name(void);
+void user_loc(void);
+void check_history(void);
+
+pid_t		api_token_grab(const char *filename);
+void	parse_json_tkn(t_curl *vars, const char *filename);
+
 int   					example(char *str);
 char					*get_ip_str(void);
+void					*get_in_addr(struct sockaddr *sa);
 const char				*recognize_from_microphone();
 void					ip_info(void);
 void					recognize(t_client_connection *con);
 
 void	curl(char *url, char *filename);
 void ip_info(void);
-void get_events(char *token);
+void get_events(const char *tokfile);
 void get_weather(char *coords);
 void get_traffic(void);
 int			parse_json_in(const char *file, int call);
